@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.footfix.dao.FootfixDAO"> <!-- 매퍼 인터페이스의 이름과 동일하게 지정 -->
+
+  <!-- 경기DB 등록 -->
+  <insert id="ff_insert" parameterType="com.footfix.dto.FootfixUserDatesDTO">
+    INSERT INTO ff_dates VALUES (
+                                 #{jobId},
+                                 #{date},
+                                 #{homeName},
+                                 #{awayName},
+                                 #{userId}
+                                 )
+  </insert>
+
+  <!-- 프로필에서 설정된 알림목록을 추출 -->
+  <select id="getMatchInfo" resultType="com.footfix.dto.FootfixUserDatesDTO">
+    SELECT * FROM ff_dates WHERE userId = #{#userId}
+  </select>
+
+  <!-- 삭제를 위해 JobId만 리스트로 추출 -->
+  <select id="getJobIdList" resultType="java.lang.String"> /* resultType는 List가 아닌 리스트안에 들어갈 값들의 자료형 */
+    SELECT jobId FROM ff_dates WHERE userId = #{userId}
+  </select>
+
+  <!-- 경기DB 삭제 -->
+  <delete id="delDate" >
+    DELETE FROM ff_dates WHERE jobId = #{jobId}
+  </delete>
+
+  <delete id="delDates" parameterType="map">
+    DELETE FROM ff_dates WHERE userId = #{userId} AND matchId = #{matchId}
+  </delete>
+
+
+</mapper>
+

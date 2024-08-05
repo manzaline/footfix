@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.footfix.security.repository.MemberRepository"> <!-- 매퍼 인터페이스의 이름과 동일하게 지정 -->
+
+  <!-- MemberTest에서 Insert를 위한 과정 시작 -->
+  <resultMap id="memberMap" type="com.footfix.security.dto.MemberDTO">
+
+    <id property="userid" column="userid" /> <!-- 유일레코드값 기준. DB의 tbl_member테이블의 userid컬럼명의 값을 MemberVO의 userid라는 속성(변수명)에다 넣는다 -->
+    <result property="userid" column="userid" />
+    <result property="password" column="password" />
+    <result property="userName" column="username" />
+    <result property="regDate" column="regdate" />
+    <result property="updateDate" column="updatedate"/>
+    <collection property="authList" resultMap="authMap" ></collection> <!-- resultMap="authMap" 은 id=authMap인 태크를 참조하라는 뜼 -->
+
+  </resultMap>
+
+  <resultMap type="com.footfix.security.dto.AuthDTO" id="authMap"> <!-- 위의 <collection>태그가 참조하는 부분. 이 resultMap의 반환타입(type) authvo가 위의 authList에 담김 -->
+    <result property="userid" column="userid" />
+    <result property="auth" column="auth" />
+  </resultMap>
+
+  <!-- SQL 쿼리와 자바 객체를 매핑하는 내용을 작성 -->
+  <select id="read" resultMap="memberMap" parameterType="java.lang.String">
+    <!-- resultMap 반환타입 속성값 memberMap은 resultMap태그의 id속성 memberMap을 호출한다. -->
+    SELECT mem.userid,password,username,enabled,regdate,updatedate,auth <!-- userid는 member와 member_auth 양쪽에 다 있기때문에  -->
+    FROM ff_member mem left outer join ff_member_auth auth <!-- left outer join은 from다음에 테이블명을 기술며 왼쪽테이블에 반드시 모두 존재하지만
+                                                                  오른쪽 테이블에 레코드가 없을 수도 있는경우 사용하는 조인기법이다다 -->
+    ON mem.userid = auth.userid
+    WHERE mem.userid=#{userid}
+  </select>
+
+  <insert id="insertToken" parameterType="org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken">
+    INSERT INTO persistent_logins (username, series, token, last_used)
+    VALUES (#{username}, #{series}, #{tokenValue}, #{date})
+  </insert>
+
+  <update id="updateToken" parameterType="map">
+    UPDATE persistent_logins SET token = #{tokenValue}, last_used = #{lastUsed}
+    WHERE series = #{series}
+  </update>
+
+  <select id="getTokenForSeries" parameterType="string" resultType="org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken">
+    SELECT username, series, token, last_used FROM persistent_logins
+    WHERE series = #{seriesId}
+  </select>
+
+  <delete id="removeUserTokens" parameterType="string">
+    DELETE FROM persistent_logins WHERE username = #{username}
+  </delete>
+
+
+</mapper>

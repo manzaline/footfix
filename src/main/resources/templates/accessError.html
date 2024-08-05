@@ -1,0 +1,14 @@
+
+<html xmlns:th="http://thymeleaf.org">
+<head>
+  <title>접근 금지 페이지</title>
+</head>
+<body>
+<h1>접근 금지 페이지!! </h1>
+<!-- 둘다 같은 결과지만 EL이 아닌 JSTL을 이요하면 msg에 태그로 해석될 수 있는 특수문자(&, <, >, ", ' 등)가
+     포함되어도 HTML entity로 자동 변환하여 XSS보안공격을 예방한다 -->
+<h2 th:utext="${msg}"></h2>
+<hr>
+<p th:utext="${msg}"></p>
+</body>
+</html>

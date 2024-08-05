@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="favicon.ico">
+  <title>관리자 게시판 글쓰기</title>
+  <!-- TinyMCE 라이브러리 -->
+  <!--  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>-->
+  <!-- CKEditor 라이브러리 -->
+  <script src="https://cdn.ckeditor.com/ckeditor5/12.4.0/classic/ckeditor.js"></script>
+  <!-- UPPY 업로드 -->
+  <!--  <link rel="stylesheet" href="css/uppy.min.css">-->
+  <!--    <script src="http://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+  <!-- Simple bar CSS -->
+  <link rel="stylesheet" href="../css/simplebar.css">
+  <!-- Fonts CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <!-- Icons CSS -->
+  <link rel="stylesheet" href="../css/feather.css">
+  <link rel="stylesheet" href="../css/select2.css">
+  <!--  <link rel="stylesheet" href="css/dropzone.css">-->
+  <!--  <link rel="stylesheet" href="css/uppy.min.css">-->
+  <!--  <link rel="stylesheet" href="css/jquery.steps.css">-->
+  <link rel="stylesheet" href="../css/jquery.timepicker.css">
+  <link rel="stylesheet" href="../css/quill.snow.css">
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="../css/daterangepicker.css">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="../css/app-light.css" id="lightTheme" disabled>
+  <link rel="stylesheet" href="../css/app-dark.css" id="darkTheme">
+  <!--  <link rel="stylesheet" href="css/ckeditor.css">-->
+  <style>
+    .ck.ck-editor__editable_inline {
+      min-height: 300px; /* 높이 */
+      color: #000000; /* 폰트 */
+    }
+    .ck.ck-toolbar {
+      background-color: #7d8184; /* 이 부분을 원하는 툴바 색상으로 설정하세요 */
+    }
+    .ck.ck-toolbar .ck-button__label,
+    .ck.ck-toolbar .ck-button__label:hover {
+    }
+
+  </style>
+</head>
+<body class="vertical  dark  ">
+<div class="wrapper">
+  <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
+  <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+
+  <main role="main" class="main-content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <h2 class="page-title">관리자게시물 글쓰기</h2>
+          <p class="text-muted">관리자게시물에 글을 작성해주세요</p>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <div class="card shadow">
+                <div class="card-body">
+                  <h5 class="card-title">Editor</h5>
+                  <p>Pages type scale includes a range of contrasting styles that support the needs of your product and its content.</p>
+                  <!-- Create the editor container -->
+                  <form action="/admin/adminBbs_write_ok" method="post" enctype="multipart/form-data">
+
+                    <input type="hidden" th:value="admin" name="bbs_writer">
+                    <input type="hidden" th:value="${_csrf.token}" th:name="${_csrf.parameterName}">
+
+                    <div class="form-group">
+                      <small>글쓴이</small><span th:utext="admin" class="form-control-lg"></span>
+                    </div>
+
+                    <div class="form-group">
+                      <input type="text" class="form-control form-control-lg" name="bbs_title" placeholder="제목을 적으세요">
+                    </div>
+
+                    <div class="form-group">
+                      <textarea id="bbs_cont" name="bbs_cont" placeholder="내용을 적으세요" style="min-height: 200px"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <strong>첨부파일</strong>
+                      <input type="file" name="files" multiple>
+                    </div>
+                    <div style="text-align: right; margin: 0 20px 10px 0;">
+                      <button type="submit" class="btn mb-2 btn-outline-primary">Submit</button>
+                      <a th:href="@{/admin/adminBbs_list(page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-info">목록</a>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div> <!-- end section -->
+        </div> <!-- .col-12 -->
+      </div> <!-- .row -->
+    </div> <!-- .container-fluid -->
+
+    <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+
+  </main> <!-- main -->
+</div> <!-- .wrapper -->
+<script src="../js/jquery.min.js"></script>
+<script src="../js/popper.min.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/simplebar.min.js"></script>
+<script src='../js/daterangepicker.js'></script>
+<script src='../js/jquery.stickOnScroll.js'></script>
+<script src="../js/tinycolor-min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/apps.js"></script>
+<!--<script src='js/quill.min.js'></script>-->
+<!--<script src='js/uppy.min.js'></script>-->
+<!--<script src='js/ckeditor.js'></script>-->
+
+<script>
+  // tinymce.init({
+  //   selector: '#bbs_cont',
+  //   skin: 'oxide-dark',
+  //   content_css: 'dark' // 편집 영역의 색상을 어둡게 변경합니다.
+  // });
+
+  ClassicEditor
+    .create( document.querySelector( '#bbs_cont' ) )
+    .then( editor => {
+      // editor.ui.view.editable.element.style.backdropColor = '8fbc8f'; // 높이 설정
+    } )
+    .catch( err => {
+      console.error( err.stack );
+    } );
+
+</script>
+</body>
+</html>

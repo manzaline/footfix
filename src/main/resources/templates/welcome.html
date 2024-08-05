@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
+
+  <script type="text/javascript" src="https://static.nid.naver.com/js/naverLogin_implicit-1.0.3.js" charset="utf-8"></script>
+  <!-- <script type="text/javascript" src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script> -->
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+
+<body>
+<!-- 구글 로그인 버튼 -->
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+<button onclick="signOut()">Sign out</button>
+<!-- 네이버 로그인 버튼 노출 영역 -->
+<div id="naver_id_login"></div>
+<!-- //네이버 로그인 버튼 노출 영역 -->
+<p th:utext="${accessToken}"></p>
+<p th:utext="${state}"></p>
+
+<p th:utext="${username}"></p>
+<p th:utext="${email}"></p>
+<p th:utext="${mobile}"></p>
+<p th:utext="${nickname}"></p>
+환영합니당~!
+
+<!--<script src="https://apis.google.com/js/platform.js" async defer></script>
+<meta name="google-signin-client_id" content="362737595673-t6gr8o5ehldlnmfk3bcu0ce6bc9p32a7.apps.googleusercontent.com.apps.googleusercontent.com">
+<script>
+  function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    console.log('ID: ' + profile.getId());
+    console.log('Name: ' + profile.getName());
+    console.log('Image URL: ' + profile.getImageUrl());
+    console.log('Email: ' + profile.getEmail());
+
+    var id_token = googleUser.getAuthResponse().id_token;
+    console.log('ID Token: ' + id_token);
+
+    // 서버로 ID 토큰을 전송하여 사용자 인증 처리
+    // 예: sendTokenToServer(id_token);
+  }
+
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+</script>-->
+
+<!-- 네이버아디디로로그인 초기화 Script -->
+<script type="text/javascript">
+  var naver_id_login = new naver_id_login("lpGKOqlteC6kzWSrKNRE", "http://localhost:8080/login/oauth2/code/naver"); // 클라이언트 아이디, 콜백 url
+  var state = naver_id_login.getUniqState();
+  naver_id_login.setButton("white", 1, 40);
+  naver_id_login.setDomain(".service.com");
+  naver_id_login.setState(state);
+  // naver_id_login.setPopup();
+  naver_id_login.init_naver_id_login();
+</script>
+
+<!-- 네이버아디디로로그인 Callback페이지 처리 Script -->
+<script type="text/javascript">
+  var naver_id_login = new naver_id_login("lpGKOqlteC6kzWSrKNRE", "http://localhost:8080/login/oauth2/code/naver"); // 클라이언트 아이디, 콜백 url
+  // 접근 토큰 값 출력
+  console.log("네이버 엑세스토큰: "+naver_id_login.oauthParams.access_token);
+  // 네이버 사용자 프로필 조회
+  naver_id_login.get_naver_userprofile("naverSignInCallback()");
+  // 네이버 사용자 프로필 조회 이후 프로필 정보를 처리할 callback function
+  function naverSignInCallback() {
+    console.log(naver_id_login.getProfileData('email'));
+    console.log(naver_id_login.getProfileData('nickname'));
+    console.log(naver_id_login.getProfileData('age'));
+  }
+</script>
+</body>
+</html>

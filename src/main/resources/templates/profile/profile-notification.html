@@ -1,0 +1,292 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="favicon.ico">
+  <meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" id="csrfToken">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" id="csrfHeader">
+
+  <title>Tiny Dashboard - A Bootstrap Dashboard Template</title>
+  <!-- Simple bar CSS -->
+  <link rel="stylesheet" href="css/simplebar.css">
+  <!-- Fonts CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <!-- Icons CSS -->
+  <link rel="stylesheet" href="css/feather.css">
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="css/daterangepicker.css">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/app-light.css" id="lightTheme" disabled>
+  <link rel="stylesheet" href="css/app-dark.css" id="darkTheme">
+</head>
+<body class="vertical  dark  ">
+<div class="wrapper">
+
+  <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
+  <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+
+  <main role="main" class="main-content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+          <h2 class="h3 mb-4 page-title">알림 등록된 경기</h2>
+          <div class="my-4">
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Security</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Notifications</a>
+              </li>
+            </ul>
+            <h5 class="mb-0 mt-5">Notifications Settings</h5>
+            <p>Select notification you want to receive</p>
+            <hr class="my-4">
+            <table class="table table-borderless table-hover" id="footfix-table">
+              <thead>
+              <tr>
+                <th>Date</th>
+                <th colspan="1" style="text-align: left">Home</th>
+                <th colspan="1" style="text-align: left">Away</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody id="bodyContainer">
+                <tr th:each="item, index : ${ffDates}" th:if="${!#lists.isEmpty(ffDates)}">
+                  <input type="hidden" th:value="${item.jobId}" id="jobId">
+                  <td th:utext="${item.date}" id="date">경기시간</td>
+                  <td th:utext="${item.homeName}" id="home">홈팀</td>
+                  <td th:utext="${item.awayName}" id="away">원정팀</td>
+                  <td>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" th:id="${index.count}">
+                      <label class="custom-control-label" th:for="${index.count}"></label>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:unless="${!#lists.isEmpty(ffDates)}">
+                  <td colspan="4" style="text-align: center; font-size: large;">경기를 등록해주세요</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button type="button" id="delDatas" class="btn mb-2 btn-primary btn-lg btn-block">알람취소</button>
+            <input type="hidden" th:value="${userId}" id="userId">
+
+            <hr class="my-4">
+            <strong class="mb-0">Security</strong>
+            <p>Control security alert you will be notified.</p>
+            <div class="list-group mb-5 shadow">
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong class="mb-0">Unusual activity notifications</strong>
+                    <p class="text-muted mb-0">Donec in quam sed urna bibendum tincidunt quis mollis mauris.</p>
+                  </div> <!-- .col -->
+                  <div class="col-auto">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="alert1" checked>
+                      <span class="custom-control-label"></span>
+                    </div>
+                  </div> <!-- .col -->
+                </div> <!-- .row -->
+              </div> <!-- .list-group-item -->
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong class="mb-0">Unauthorized financial activity</strong>
+                    <p class="text-muted mb-0">Fusce lacinia elementum eros, sed vulputate urna eleifend nec.</p>
+                  </div> <!-- .col -->
+                  <div class="col-auto">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="alert2">
+                      <span class="custom-control-label"></span>
+                    </div>
+                  </div> <!-- .col -->
+                </div> <!-- .row -->
+              </div> <!-- .list-group-item -->
+            </div> <!-- .list-group -->
+            <hr class="my-4">
+            <strong class="mb-0">System</strong>
+            <p>Please enable system alert you will get.</p>
+            <div class="list-group mb-5 shadow">
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong class="mb-0">Notify me about new features and updates</strong>
+                    <p class="text-muted mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                  </div> <!-- .col -->
+                  <div class="col-auto">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="alert3" checked>
+                      <span class="custom-control-label"></span>
+                    </div>
+                  </div> <!-- .col -->
+                </div> <!-- .row -->
+              </div> <!-- .list-group-item -->
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong class="mb-0">Notify me by email for latest news</strong>
+                    <p class="text-muted mb-0">Nulla et tincidunt sapien. Sed eleifend volutpat elementum.</p>
+                  </div> <!-- .col -->
+                  <div class="col-auto">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="alert4" checked>
+                      <span class="custom-control-label"></span>
+                    </div>
+                  </div> <!-- .col -->
+                </div> <!-- .row -->
+              </div> <!-- .list-group-item -->
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong class="mb-0">Notify me about tips on using account</strong>
+                    <p class="text-muted mb-0">Donec in quam sed urna bibendum tincidunt quis mollis mauris.</p>
+                  </div> <!-- .col -->
+                  <div class="col-auto">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="alert5">
+                      <span class="custom-control-label"></span>
+                    </div>
+                  </div> <!-- .col -->
+                </div> <!-- .row -->
+              </div> <!-- .list-group-item -->
+            </div> <!-- .list-group -->
+          </div> <!-- /.card-body -->
+        </div> <!-- /.col-12 -->
+      </div> <!-- .row -->
+    </div> <!-- .container-fluid -->
+    <div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="defaultModalLabel">Notifications</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="list-group list-group-flush my-n3">
+              <div class="list-group-item bg-transparent">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <span class="fe fe-box fe-24"></span>
+                  </div>
+                  <div class="col">
+                    <small><strong>Package has uploaded successfull</strong></small>
+                    <div class="my-0 text-muted small">Package is zipped and uploaded</div>
+                    <small class="badge badge-pill badge-light text-muted">1m ago</small>
+                  </div>
+                </div>
+              </div>
+              <div class="list-group-item bg-transparent">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <span class="fe fe-download fe-24"></span>
+                  </div>
+                  <div class="col">
+                    <small><strong>Widgets are updated successfull</strong></small>
+                    <div class="my-0 text-muted small">Just create new layout Index, form, table</div>
+                    <small class="badge badge-pill badge-light text-muted">2m ago</small>
+                  </div>
+                </div>
+              </div>
+              <div class="list-group-item bg-transparent">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <span class="fe fe-inbox fe-24"></span>
+                  </div>
+                  <div class="col">
+                    <small><strong>Notifications have been sent</strong></small>
+                    <div class="my-0 text-muted small">Fusce dapibus, tellus ac cursus commodo</div>
+                    <small class="badge badge-pill badge-light text-muted">30m ago</small>
+                  </div>
+                </div> <!-- / .row -->
+              </div>
+              <div class="list-group-item bg-transparent">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <span class="fe fe-link fe-24"></span>
+                  </div>
+                  <div class="col">
+                    <small><strong>Link was attached to menu</strong></small>
+                    <div class="my-0 text-muted small">New layout has been attached to the menu</div>
+                    <small class="badge badge-pill badge-light text-muted">1h ago</small>
+                  </div>
+                </div>
+              </div> <!-- / .row -->
+            </div> <!-- / .list-group -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Clear All</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+
+  </main> <!-- main -->
+</div> <!-- .wrapper -->
+
+<script>
+  const csrfToken = document.querySelector('#csrfToken').content;
+  const csrfHeader = document.querySelector('#csrfHeader').content;
+
+  let bodyContainer = document.querySelector("#bodyContainer");
+  const delButton = document.querySelector("#delDatas");
+  const userId = document.querySelector("#userId").value;
+  let jobIdList = [];
+
+  // 등록된알람중 삭제하고싶은 알람 체크
+  bodyContainer.addEventListener('change', e => {
+    let targetValue = e.target.parentElement.parentElement.parentElement.querySelector("#jobId").value
+    if (e.target.checked && !jobIdList.includes(targetValue)){
+      jobIdList.push(targetValue);
+    } else if(!e.target.checked && jobIdList.includes(targetValue)) {
+      jobIdList = jobIdList.filter(item => item !== targetValue);
+    }
+  })
+
+  // 체크된 알람 삭제
+  delButton.addEventListener("click", () => {
+    fetch(`/footfix/delDate/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [csrfHeader]: csrfToken,
+      },
+      body: JSON.stringify(jobIdList)
+    })
+    .then(resp => {
+      if(!resp.ok) throw new Error("응답에러 발생!");
+      return resp.text()
+    })
+    .then(data => {
+      alert(data);
+      window.location.reload(); // 현재 페이지 새로고침
+    })
+    .catch(err => console.error('에러!: '+err))
+  })
+
+</script>
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.min.js"></script>
+<script src="js/moment.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/simplebar.min.js"></script>
+<script src='js/daterangepicker.js'></script>
+<script src='js/jquery.stickOnScroll.js'></script>
+<script src="js/tinycolor-min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/apps.js"></script>
+
+</body>
+</html>

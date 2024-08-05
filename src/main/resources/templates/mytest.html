@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <script type="text/javascript" src="https://static.nid.naver.com/js/naverLogin_implicit-1.0.3.js" charset="utf-8"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" id="csrfToken">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" id="csrfHeader">
+  <title>경기일정</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+
+  <!-- App CSS -->
+  <!--    <link rel="stylesheet" href="css/app-light.css" id="lightTheme" disabled>-->
+  <link rel="stylesheet" href="css/app-dark.css" id="darkTheme">
+  <style>
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* Creates 4 equal-width columns */
+    }
+
+    .grid-row {
+      display: contents; /* Makes the row act as if it's not there, allowing cells to be direct children of the grid */
+    }
+
+    .grid-cell {
+      border: 1px solid black;
+      padding: 10px;
+    }
+
+    .active {
+      font-weight: bold;
+    }
+
+    /*input[type="checkbox"]{
+      display: none;
+    }
+    input[type="checkbox"] + label{
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border:3px solid #707070;
+      position: relative;
+    }
+    input[type="checkbox"]:checked + label::after{
+      content:'✔';
+      font-size: 25px;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      position: absolute;
+      left: 0;
+      top:0;
+    }*/
+  </style>
+</head>
+<body>
+<!-- FCM 푸시알림 -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyB5jI4VASgpwYPLRZ26qLoeS6aYGV3Nhh4",
+    authDomain: "footfix-f417c.firebaseapp.com",
+    projectId: "footfix-f417c",
+    storageBucket: "footfix-f417c.appspot.com",
+    messagingSenderId: "362737595673",
+    appId: "1:362737595673:web:9f2e44f894f7556a570188",
+    measurementId: "G-YPQCLQW43Y"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+<progress value="10"  max="100"></progress>
+<br><hr>
+
+<details>
+  <summary>마츠모토 이치카</summary>
+  <span>cute~! 너무귀여와</span><br>
+  <span>cute~! 겁나귀여와</span><br>
+</details>
+<br><hr>
+
+<input type="month">
+<input type="week">
+<input type="time" >
+<br><hr>
+
+<picture>
+  <source srcset="../images/쭈루리.jpg " media="(min-width:1200px)">
+  <source srcset="../images/마츠모토%20이치카.jpg " media="(min-width:900px)">
+  <source srcset="../images/시라토%20하나.jpg " media="(min-width:500px)">
+  <img src="../images/나기사%20미츠키.webp" style="width: 700px; height: 600px; object-fit: contain;"/>
+</picture>
+<button onclick="requestPay()" id="payButton">결재하기</button>
+<br><hr>
+
+<input type="text" list="avlist" />
+<datalist id="avlist">
+  <option value="마츠모토 이치카"/>
+  <option value="미나미 아이자와"/>
+  <option value="타카스기 마리"/>
+  <option value="시라토 하나"/>
+  <option value="츠보미"/>
+  <option value="진구지 나오"/>
+</datalist>
+<br><hr>
+
+<select class="custom-select mr-sm-2" id="inlineFormCustomSelectPref1">
+  <option value="2">2</option>
+  <option value="3" selected>3</option>
+  <option value="4">4</option>
+  <option value="">ALL</option>
+</select>
+<br><hr>
+
+<div class="mytable" id="mytable">
+  <div th:each="item, index : ${#numbers.sequence(1, 5)}" class="grid-container">
+    <div class="date grid-cell" th:utext="${'2024-01-'+index.count}">날짜</div>
+    <div class="grid-cell" th:utext="${'미나미 아이자와'+index.count}">yuiouyoiuy D</div>
+    <div class="grid-cell" th:utext="${'곽곽이'+index.count}">sdfsfsdff</div>
+    <div class="grid-cell-hidden custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" th:id="${index.count}">
+      <label class="custom-control-label" th:for="${index.count}">진구지</label>
+    </div>
+  </div>
+</div>
+
+<div style="text-align: center" id="pagination"></div>
+
+<input type="text" id="search">
+
+<input type="text" id="message">
+
+
+
+<script src="js/jquery.min.js"></script>
+
+<!-- 스크립트를 작성합니다 -->
+<script>
+  $('#dataTable-1').DataTable(
+    {
+      autoWidth: true,
+      "lengthMenu": [
+        [16, 32, 64, -1],
+        [16, 32, 64, "All"]
+      ]
+    });
+
+  let rows = Array.from(document.querySelectorAll("tbody > tr"));
+
+  function ready() {
+    let search = document.getElementById("search");
+    function keyup() {
+      let k = search.value.toLowerCase();
+      let targetRows = document.querySelectorAll("#mytable > tbody > tr > td:nth-child(3n+2)");
+      let searchResult = Array.from(targetRows).filter(row => row.textContent.toLowerCase().includes(k)).map(row => row.parentNode);
+      rows.forEach(row => row.style.display = "none");
+      searchResult.forEach(row => row.style.display = "");
+      createPagination(searchResult, "pagination");
+    };
+    search.addEventListener("keyup", keyup);
+  }
+
+  function createPagination(rows, container) {
+    let pageSize = parseInt(document.querySelector("#inlineFormCustomSelectPref1").value); // select 요소의 값으로 초기화
+    let pageCount = Math.ceil(rows.length / pageSize);
+    let pagination = document.getElementById(container);
+    pagination.innerHTML = ""; /* 모든요소, 즉 페이징 번호를 제거. while문으로 removeChild()로 firstChild를 지워도 됨 */
+    for (let i = 1; i <= pageCount; i++) {
+      let page = document.createElement("a");
+      page.innerText = i;
+      page.style.margin = "5px";
+      page.style.cursor = "pointer";
+      page.addEventListener("click", function () {
+        // 현재 페이지 번호를 가져온다.
+        let currentPage = parseInt(this.innerText);
+        // 행들을 숨기거나 보여준다.
+        rows.forEach(row => row.style.display = "none");
+        for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i++) {
+          if(rows[i]) {
+            rows[i].style.display = "";
+          }
+        }
+        // 페이지 번호에 active 클래스를 추가하거나 제거한다.
+        pagination.querySelectorAll("a").forEach(a => a.classList.remove("active"));
+        this.classList.add("active");
+      });
+      pagination.appendChild(page);
+    };
+    // 첫 번째 페이지 번호를 클릭한다.
+    pagination.firstChild.click();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    ready();
+    createPagination(rows, "pagination");
+  });
+
+  // select 요소에 change 이벤트 리스너를 추가
+  let select = document.querySelector("#inlineFormCustomSelectPref1");
+  select.addEventListener("change", function() {
+    // 현재 검색 결과를 가져온다
+    console.log("검색어 = " + document.getElementById("search").value.toLowerCase())
+    console.log("표시할 행 = " + document.querySelector("#inlineFormCustomSelectPref1").value)
+    let k = document.getElementById("search").value.toLowerCase();
+    let targetRows = document.querySelectorAll("#mytable > tbody > tr > td:nth-child(3n+2)");
+    let searchResult = Array.from(targetRows).filter(row => row.textContent.toLowerCase().includes(k)).map(row => row.parentNode);
+    // 페이징 함수를 호출한다
+    createPagination(searchResult, "pagination");
+  });
+
+</script>
+
+<!-- 자바스크립트 내장 알림시스템 -->
+<!--<script>-->
+<!--  //알림 권한 요청-->
+<!--  function getNotificationPermission() {-->
+<!--    // 브라우저 지원 여부 체크-->
+<!--    if (!("Notification" in window)) {-->
+<!--      alert("데스크톱 알림을 지원하지 않는 브라우저입니다.");-->
+<!--      return;-->
+<!--    }-->
+
+<!--    var iconUrl = window.location.origin + '/static/images/쭈루리.jpg';-->
+
+<!--    // 데스크탑 알림 권한 요청-->
+<!--    Notification.requestPermission(function (result) {-->
+<!--      // 권한 거절-->
+<!--      if(result == 'denied') {-->
+<!--        alert('알림을 차단하셨습니다.\n브라우저의 사이트 설정에서 변경하실 수 있습니다.');-->
+<!--      }-->
+<!--      // 권한 허용-->
+<!--      else if (result == 'granted'){-->
+<!--        alert('알림을 허용하셨습니다.');-->
+<!--        // 알림 생성-->
+<!--        let notification = new Notification("타이틀", {-->
+<!--          body:'메세지내용',-->
+<!--          vibrate : [200, 100, 200],-->
+<!--          renotify : true,-->
+<!--          tag : 'renotify',-->
+<!--          icon : 'http://localhost:8080/images/쭈루리.jpg',-->
+<!--          requireInteraction : true-->
+<!--        });-->
+
+<!--        // 1초 후에 알림 닫기-->
+<!--        setTimeout(function() {-->
+<!--          notification.close();-->
+<!--        }, 1000);-->
+<!--      }-->
+<!--    });-->
+<!--  }-->
+
+<!--  getNotificationPermission();-->
+<!--</script>-->
+
+<!-- 결제시스템 -->
+<script>
+  const IMP = window.IMP; // 생략가능
+  IMP.init("imp04464087"); // 가맹점 식별코드
+
+  function requestPay() {
+    let today = new Date();
+    let month = (today.getMonth() + 1).toString().padStart(2, '0');
+    let day = today.getDate().toString().padStart(2, '0');
+    let hours = today.getHours().toString().padStart(2, '0');
+    let minutes = today.getMinutes().toString().padStart(2, '0');
+    let seconds = today.getSeconds().toString().padStart(2, '0');
+    let milliseconds = today.getMilliseconds().toString().padStart(3, '0');
+    let orderUid = 'IMP' + today.getFullYear() + month + day + hours + minutes + seconds + milliseconds;
+
+    let id = 888;
+    const csrfToken = document.querySelector("#csrfToken").content;
+    const csrfHeader = document.querySelector("#csrfHeader").content;
+
+    IMP.request_pay({
+      pg: 'html5_inicis.INIpayTest', // PG사 코드표에서 선택
+      pay_method: 'card',
+      merchant_uid: orderUid,
+      name: 'month',
+      amount: 104,
+      buyer_email: 'kjsggnet@iamport.com',
+      buyer_name: "홍길동",
+      buyer_tel: '010-1234-5678',
+      buyer_addr: '서울특별시 강남구 삼성동',
+      buyer_postcode: '123-456'
+    }, function (rsp) { // callback
+      if(rsp.success){
+        console.log("결제정보 전송 성공~!")
+        console.log(rsp)
+        console.log("rsp.amount = "+rsp.paid_amount)
+        $.ajax({
+          type: "POST",
+          url: `/test/payment/success/${id}`,
+          headers: {
+            'Content-Type': "application/json",
+            [csrfHeader]: csrfToken,
+          },
+          data: JSON.stringify({
+            productName: rsp.name,
+            merchantUid: rsp.merchant_uid,
+            impUid: rsp.imp_uid, //imp_uid는 원포트api에서 제공하는 결재성공시 imp변수명
+            paymentForPay: rsp.paid_amount, //paid_amount는 원포트api에서 제공하는 결재성공시 결재할금액 변수명
+          }),
+        })
+      }else {
+        console.log("결제정보 전송 실패!"+err);
+      }
+    });
+  };
+</script>
+
+<script type="text/javascript">
+  var naver_id_login = new naver_id_login("YOUR_CLIENT_ID", "YOUR_CALLBACK_URL");
+  // 접근 토큰 값 출력
+  alert(naver_id_login.oauthParams.access_token);
+  // 네이버 사용자 프로필 조회
+  naver_id_login.get_naver_userprofile("naverSignInCallback()");
+  // 네이버 사용자 프로필 조회 이후 프로필 정보를 처리할 callback function
+  function naverSignInCallback() {
+    alert(naver_id_login.getProfileData('email'));
+    alert(naver_id_login.getProfileData('nickname'));
+    alert(naver_id_login.getProfileData('age'));
+  }
+</script>
+</body>
+</html>
