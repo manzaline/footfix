@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>커스텀 로그인 페이지</title>
+  <link rel="stylesheet" href="../css/customLogin.css">
+<!--  <link rel="stylesheet" th:href="@{/css/customLogin.css}"> 타임리프문법을 사용-->
+  <script src="../js/customLogin.js"></script>
+</head>
+<body>
+<div class="wrapper">
+  <div class="container">
+    <h4 style="margin: 0 0 0 0" th:utext="${logout}"></h4>
+    <div class="sign-up-container">
+      <form method="POST" action="/join">
+        <h1>Create Account</h1>
+        <div class="social-links">
+          <div>
+            <a href="/oauth2/authorization/naver"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          </div>
+          <div>
+            <a href="/oauth2/authorization/kakao"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          </div>
+          <div>
+            <a href="/oauth2/authorization/google"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+          </div>
+        </div>
+        <span>or use your email for registration</span>
+        <input type="text" name="username" placeholder="Name">
+        <input type="password" name="password" placeholder="Password">
+        <input type="email" name="email" placeholder="Email">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="form_btn">Sign Up</button>
+      </form>
+    </div>
+
+    <div class="sign-in-container">
+      <!-- /가 있으면 절대경로, 없으면 상대경로 => 상대경로는 context path(여기선 '/TimeisNow02')가 자동으로 포함 -->
+      <!-- /login 은 스프링 시큐리티가 기본으로 제공하는 로그인 처리 URL입니다.
+  UsernamePasswordAuthenticationFilter라는 필터를 통해 사용자의 아이디와 비밀번호를 검증하고, 인증 성공 여부에 따라 다른 로직을 수행
+  로그인 성공하면 security-context의 customLoginSuccess bean에 의해 CustomLoginSuccessHandler.java로 쏜다 -->
+      <form method="post" action="/loginProc">
+        <h1>Sign In</h1>
+        <div class="social-links">
+          <div>
+            <a href="/oauth2/authorization/naver"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          </div>
+          <div>
+            <a href="/oauth2/authorization/kakao"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          </div>
+          <div>
+            <a href="/oauth2/authorization/google"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+          </div>
+        </div>
+        <span th:utext="${#strings.isEmpty(error) ? 'or use your account' : error}"></span>
+        <span th:utext="${#strings.isEmpty(logout) ? 'or use your account' : logout}"></span>
+        <input type="input" name="username" placeholder="Username"> <!-- username이 시큐리티설정 기본 아이디 파라미터이름 -->
+        <input type="password" name="password" placeholder="Password"> <!-- password가 시큐리티설정 기본 비밀번호 파라미터이름 -->
+
+        <div class="checkbox">
+          <!--자동로그인기능. 파라미터 이름은 관례적으로 스프링시큐리티에서는 remember-me로 한다 -->
+          <input type="checkbox" name="remember-me" id="check2" value="true" class="checkbox2">
+          <label for="check2">Remember Me</label>
+        </div>
+        <button class="form_btn">Sign In</button>
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" >
+<!--        <input type="hidden" th:name="_csrf_header" th:value="${_csrf.headerName}">-->
+        <!--  CSRF(Cross-site request forgery) 의 특징)
+              1. 스프링 시큐리티에서 post방식을 이용하는 경우 기본적으로 CSRF 토큰을 이용한다. 이 말은 반대로 CSRF토큰이 없이
+                 post방식을 접근 불가능 하다는 뜻이다
+              2. CSRF토큰이 사용되는데 '사이트간 위조 방지'를 목적으로 특정한 값의 토큰을 사용하는 방식이다.
+              3. CSRF토큰은 사용자가 임의로 변하는 특정한 토큰값을 서버에서 체크하는 방식이다.
+              4. 브라우저에서 데이터를 전송할 때(보통 CRUD를 할때) CSRF토큰을 포함 시키는것이 좋다.
+                 사용자가 POST방식등으로 특정한 작업을 할 때는 브라우저에서 전송한 CSRF 토큰값과 서버가 보관하고 있는 토큰값을 서로 비교한다.
+                 만일 토큰 값이 다르다면 403접근제한 에러가 터진다.
+              5. 서버에서 생성하는 토큰은 일반적으로 난수를 생성해서 해커가 난수를 찾을 수 없도록 한다.
+                 사용자가 '/customLogin'을 처음 호출했을 때와 강제로 F12개발툴 세션쿠키에서 강제로 세션쿠키 정보를 삭제한 후에 다시 호출했을 때 CSRF 토큰 값이 변경되는 것을 확인 할 수 있다.
+                 일반적으로 세션의 만료, 갱신, 무효화에서 토큰은 사라지거나 변경된다.
+              6. 따라서 CSRF토큰은 어떤 사용자에게 나누어주느냐와 어떤페이지를 접속할때 그 토큰을 사용할 수 있게하느냐가 핵심이다
+        -->
+      </form>
+    </div>
+    <div class="overlay-container">
+      <div class="overlay-left">
+        <h1>Welcome Back</h1>
+        <p>To keep connected with us please login with your personal info</p>
+        <button id="signIn" class="overlay_btn">Sign In</button>
+      </div>
+      <div class="overlay-right">
+        <h1>Hello, Friend</h1>
+        <p>Enter your personal details and start journey with us</p>
+        <button id="signUp" class="overlay_btn">Sign Up</button>
+        <button id="register" class="overlay_btn" type="submit">회원가입</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('register').addEventListener('click', () => {
+    window.location.href = '/authRegister';
+  })
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>
+
+
+

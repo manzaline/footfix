@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" id="csrfToken">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" id="csrfHeader">
+  <link rel="icon" href="favicon.ico">
+  <title>게시물 보기</title>
+  <!--    <script src="http://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+  <!-- Simple bar CSS -->
+  <link rel="stylesheet" href="../css/simplebar.css">
+  <!-- Fonts CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <!-- Icons CSS -->
+  <link rel="stylesheet" href="../css/feather.css">
+  <link rel="stylesheet" href="../css/select2.css">
+  <!--  <link rel="stylesheet" href="css/jquery.steps.css">-->
+  <link rel="stylesheet" href="../css/jquery.timepicker.css">
+  <link rel="stylesheet" href="../css/quill.snow.css">
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="../css/daterangepicker.css">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="../css/app-light.css" id="lightTheme" disabled>
+  <link rel="stylesheet" href="../css/app-dark.css" id="darkTheme">
+<style>
+  .hidden {
+    display: none;
+  }
+  .reply-wrapper {
+    position: relative;
+    padding-left: 20px; /* Adjust this value as needed */
+  }
+
+  .reply-wrapper .fe-corner-down-right {
+    position: absolute;
+    top: 25%; /* Center vertically */
+    left: 30px; /* Align to the left */
+    transform: translateY(-50%); /* Adjust for centering */
+  }
+</style>
+</head>
+<body class="vertical  dark  ">
+<div class="wrapper">
+  <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
+  <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+  <main role="main" class="main-content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <h2 class="page-title">게시물 내용보기</h2>
+          <p class="text-muted">게시물 내용보기 페이지입니다</p>
+          <div class="row my-4">
+            <div class="col-md-9">
+              <!-- 게시물보기 시작 -->
+              <div class="card shadow mb-4">
+                <div class="card-header">
+                  <strong th:utext="${boardDTO.bbs_title}" class="card-title"></strong>
+                  <span class="float-right"><i class="fe fe-flag mr-2"></i><span class="badge badge-pill badge-success text-white">Payment</span></span>
+                </div>
+                <div class="card-body">
+                  <dl class="row align-items-center mb-0">
+                    <dt class="col-sm-2 mb-3 text-muted">글쓴이</dt>
+                    <dd class="col-sm-4 mb-3">
+                      <strong th:utext="${boardDTO.bbs_writer}"></strong>
+                    </dd>
+                    <dt class="col-sm-2 mb-3 text-muted">조회수</dt>
+                    <dd class="col-sm-4 mb-3">
+                      <strong th:utext="${boardDTO.bbs_hit}"></strong>
+                    </dd>
+                  </dl>
+                  <dl class="row mb-0">
+                    <dt class="col-sm-2 mb-3 text-muted">첨부파일</dt>
+                    <!-- 첨부파일 리스트 양끝의 대괄호 [] 를 생략 -->
+                    <dd th:text="${boardDTO.bbs_fileName}" class="col-sm-10 mb-3"></dd>
+                    <dt class="col-sm-2 mb-3 text-muted">번호</dt>
+                    <dd th:text="${boardDTO.bbs_no}" id="bbs_no" class="col-sm-4 mb-3"></dd>
+                    <dt class="col-sm-2 mb-3 text-muted">수정됬다면</dt>
+                    <dd class="col-sm-4 mb-3">수정한날짜를?</dd>
+
+                    <dt class="col-sm-2 text-muted">내용보기</dt>
+                    <dd th:utext="${boardDTO.bbs_cont}" class="col-sm-9" style="min-height:100px;"></dd>
+                  </dl>
+                </div> <!-- .card-body -->
+
+                <!-- 관리자 또는 로그인한 사용자의 글이면 수정삭제 가능 -->
+                <th:block th:if="${nickName} == admin or ${nickName} == ${boardDTO.bbs_writer}"> <!-- if는 true일경우 출력 -->
+                  <div style="text-align: right; margin: 20px 20px 10px 0;" >
+                    <a th:href="@{/bbs/b_edit(bno=${boardDTO.bbs_no}, page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-warning">수정</a>
+                    <a th:href="@{/bbs/b_reply(bno=${boardDTO.bbs_no}, page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-success">답글</a>
+                    <a th:href="@{/bbs/b_delete(bno=${boardDTO.bbs_no}, page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-danger" onclick="return confirm('정말로 삭제?')">삭제</a>
+                    <a th:href="@{/bbs/b_list(page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-info">목록</a>
+                  </div>
+                </th:block>
+                <!-- 관리자가 아니거나 본인이 쓴 글이 아니면 수정삭제 불가능 -->
+                <th:block th:unless="${nickName} == admin or ${nickName} == ${boardDTO.bbs_writer}"> <!-- unless는 false일경우 출력 -->
+                  <div style="text-align: right; margin: 20px 20px 10px 0;" >
+                    <a th:href="@{/bbs/b_reply(bno=${boardDTO.bbs_no}, page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-success">답글</a>
+                    <a th:href="@{/bbs/b_list(page=${page}, find_field=${find_field}, find_name=${find_name})}" class="btn mb-2 btn-outline-info">목록</a>
+
+                  </div>
+                </th:block>
+
+              </div> <!-- .card -->
+              <!-- 게시물보기 끝 -->
+
+              <div class="card shadow mb-4">
+                <div class="card-header">
+                  <strong class="card-title">댓글</strong>
+                  <span class="float-right"><i class="fe fe-message-circle mr-2"></i></span>
+                </div>
+
+                <!-- 댓글작성 시작 -->
+                <div id="commWriteContainer" class="card-body">
+                  <div class="form-group">
+                    <strong th:utext="${nickName}"></strong>
+                    <input type="hidden" name="commenter" th:value="${nickName}" id="commenter">
+                  </div>
+                  <div class="form-group">
+                    <label for="commentText" class="sr-only">Your Message</label>
+                    <textarea name="commentText" id="commentText" class="form-control bg-light" rows="2"></textarea>
+                  </div>
+                  <div class="float-right">
+                    <button type="submit" id="commAddBtn" class="btn btn-primary">등록</button>
+                  </div>
+                </div> <!-- .card-body -->
+                <!-- 댓글작성 끝 -->
+
+                <!-- 댓글보기 시작 -->
+                <div class="card-body">
+                  <div id="commentContainer" class="d-flex flex-column align-items-center mb-4">
+                    <!-- 댓글수정 -->
+                    <div id="commEditForm" class="row w-100" style="display: none">
+                      <div class="col-auto" style="padding: 0">
+                        <div class="form-group">
+                          <strong th:utext="${nickName}"></strong>
+                          <input type="hidden" name="commenter" th:value="${nickName}" id="editCommenter">
+                        </div>
+                        <div class="form-group">
+                          <label for="commentText" class="sr-only">Your Message</label>
+                          <textarea name="commentText" id="editCommentText" class="form-control bg-light" rows="2"></textarea>
+                        </div>
+                        <div class="float-right">
+                          <input type="hidden" id="cno">
+                          <button id="commEditCancelBtn" class="btn btn-primary">수정취소</button>
+                          <button id="commEditAddBtn" class="btn btn-primary">수정완료</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 댓글내용 -->
+                    <div id="commViewForm" class="content row w-100">
+                      <div class="col-auto">
+                        <div class="avatar avatar-sm mb-3 mx-4">
+                          <img src="../assets/avatars/face-3.jpg" alt="..." class="avatar-img rounded-circle">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <strong><div id="showCommenter"></div></strong> <!-- 댓글작성자 -->
+                        <div id="showCommentText" class="mb-2"></div> <!-- 댓글내용 -->
+                        <small id="comm_regdate" class="text-muted"></small> <!-- 작성시간 -->
+                      </div>
+                      <div class="col-auto">
+                        <span class="float-right">
+                          <i id="commEditBtn" class="btn fe fe-edit-3 mb-1" th:title="수정"></i> <!-- 댓글수정 -->
+                          <i id="replyBtn" class="btn fe fe-plus-square mb-1" th:title="답글"></i> <!-- 대댓글 -->
+                          <i id="commDelBtn" data-cno="" class="btn fe fe-delete mb-1" th:title="삭제"></i> <!-- 댓글삭제 -->
+                        </span>
+                      </div>
+                    </div>
+
+                    <div id="replyContainer" class="row" style="width: 90%; display: none">
+                      <div class="col">
+                        <strong th:utext="${nickName}"></strong>&nbsp;
+<!--                        <span id="editMessage" th:utext="(수정됨)" style="display: none"></span>-->
+                        <input type="hidden" name="commenter" th:value="${nickName}" id="replyCommenter">
+                      </div>
+                      <div class="form-group">
+                        <label for="commentText" class="sr-only">Your Message</label>
+                        <textarea name="commentText" id="replyCommentText" class="form-control bg-light" rows="2"></textarea>
+                      </div>
+                      <div class="float-right">
+                        <button type="submit" id="replyCommAddBtn" class="btn btn-primary">등록</button>
+                        <button type="button" id="replyCommCancelBtn" class="btn btn-primary">취소</button>
+                      </div>
+                    </div> <!-- .card-body -->
+                  </div> <!-- #commentContainer-->
+                </div><!-- card-body -->
+                <!-- 댓글보기 끝 -->
+
+              </div> <!-- .card -->
+            </div> <!-- .col-md -->
+            <div class="col-md-3" style="position: fixed; top: 175px; right: 15px; width: 19vw; height: 100vh;">
+              <div class="card shadow mb-4">
+                <div class="card-body">
+                  <h3 class="h5 mb-1">Integrations</h3>
+                  <p class="text-muted mb-4">How to integrate the theme?</p>
+                  <ul class="list-unstyled">
+                    <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Lorem ipsum dolor sit amet</li>
+                    <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Consectetur adipiscing elit</li>
+                    <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Integer molestie lorem</li>
+                    <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Facilisis in pretium</li>
+                    <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Nulla volutpat aliquam velit</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div> <!-- .col-md -->
+        </div> <!-- .col-12 -->
+      </div> <!-- .row -->
+    </div> <!-- .container-fluid -->
+
+    <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+
+  </main> <!-- main -->
+</div> <!-- .wrapper -->
+
+<script src="../js/jquery.min.js"></script>
+<script src="../js/popper.min.js"></script>
+<script src="../js/moment.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/simplebar.min.js"></script>
+<script src='../js/daterangepicker.js'></script>
+<script src='../js/jquery.stickOnScroll.js'></script>
+<script src="../js/tinycolor-min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/apps.js"></script>
+
+<script>
+  const csrfToken = document.querySelector('#csrfToken').content;
+  const csrfHeader = document.querySelector('#csrfHeader').content;
+
+  let bno = document.querySelector("#bbs_no").innerHTML;
+  let commentContainer = document.querySelector('#commentContainer');
+  let commentContainerParent = commentContainer.parentElement;
+
+  commentList();
+
+  /* 댓글목록불러오기 */
+  function commentList() {
+    fetch(`/comment/${bno}`,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-HTTP-Method-Override": "PATCH"
+      },
+    })
+      .then(resp => resp.json())
+      .then(data => {
+        let commTotalCount = data.length;
+        let showCommTotalCount = document.querySelector('.fe-message-circle');
+        showCommTotalCount.innerHTML = "&nbsp;"+commTotalCount; // 댓글 총갯수
+
+        // 불러올 댓글이 없을 때, 댓글 컨테이너를 숨기고 댓글이있으면 나타냅니다.
+        if (commTotalCount === 0) {
+          commentContainerParent.style.display = 'none';
+          return;
+        } else commentContainerParent.style.display = '';
+
+        // 댓글목록을 불러오기전 기존 댓글들을 모두 삭제합니다.
+        while (commentContainerParent.firstChild) {
+          commentContainerParent.removeChild(commentContainerParent.firstChild);
+        }
+
+        data.forEach((comment, index) => {
+          // HTML 템플릿을 복사하여 새 댓글 요소를 만듭니다.
+          let commentElement = commentContainer.cloneNode(true);
+
+          // 대댓글의 경우 화살표를 추가합니다.
+          if (comment.comm_depth !== 0) {
+            let replyWrapper = document.createElement('div');
+            replyWrapper.className = 'reply-wrapper';
+            replyWrapper.innerHTML = '<span class="fe fe-23 fe-corner-down-right"></span>';
+            replyWrapper.appendChild(commentElement);
+            commentElement = replyWrapper;
+          }
+
+          // 댓글이 수정되면 (수정됨) 텍스트 추가
+          commentElement.querySelector('#showCommenter').innerHTML = (comment.comm_editdate != null && (!comment.commenter.includes("(수정됨)"))) ? comment.commenter + "&nbsp;&nbsp;&nbsp;<small>(수정됨)</small>" : comment.commenter;
+          commentElement.querySelector('#showCommentText').textContent = comment.commentText;
+          // 댓글이 수정되면 수정된날짜로 변경
+          commentElement.querySelector('#comm_regdate').textContent = (comment.comm_editdate == null) ? comment.comm_regdate.substring(0, 19) : comment.comm_editdate.substring(0, 19);
+          commentElement.querySelector('#commEditAddBtn').dataset.cno = comment.cno;
+          commentElement.querySelector('#commEditAddBtn').dataset.comm_ref = comment.comm_ref;
+          commentElement.querySelector('#commEditAddBtn').dataset.comm_depth = comment.comm_depth;
+          commentElement.querySelector('#commDelBtn').dataset.cno = comment.cno;
+          commentElement.querySelector('#replyBtn').dataset.commenter = comment.commenter;
+          commentElement.querySelector('#replyCommAddBtn').dataset.cno = comment.cno;
+          commentElement.querySelector('#replyCommAddBtn').dataset.comm_ref = comment.comm_ref;
+          commentElement.querySelector('#replyCommAddBtn').dataset.comm_depth = comment.comm_depth;
+          commentElement.querySelector('#replyCommAddBtn').dataset.commenter = comment.commenter;
+
+          // 각 버튼에 고유한 ID를 부여합니다.
+          commentElement.querySelector('#commEditCancelBtn').id = `commEditCancelBtn${index}`;
+          commentElement.querySelector('#commEditAddBtn').id = `commEditAddBtn${index}`;
+          commentElement.querySelector('#commEditBtn').id = `commEditBtn${index}`;
+          commentElement.querySelector('#replyBtn').id = `replyBtn${index}`;
+          commentElement.querySelector('#replyCommAddBtn').id = `replyCommAddBtn${index}`;
+          commentElement.querySelector('#replyCommCancelBtn').id = `replyCommCancelBtn${index}`;
+          commentElement.querySelector('#commDelBtn').id = `commDelBtn${index}`;
+
+          // 이벤트 리스너를 다시 추가합니다.
+          addEventListeners(commentElement);
+
+          // 최종적으로 생성한 댓글 요소를 댓글 목록을 담는 부모 요소에 추가합니다.
+          commentContainerParent.appendChild(commentElement);
+        }); // forEach
+      }); // then(data => {})
+  }; // commentList()
+
+  /* 댓글등록 */
+  document.querySelector("#commAddBtn").addEventListener("click",() => {
+    const commenter = document.querySelector("#commenter");
+    const commentText = document.querySelector("#commentText");
+    const comment = {
+      bno: bno,
+      commenter: commenter.value,
+      commentText: commentText.value
+    }
+    const csrfToken = document.querySelector('#csrfToken').content;
+    const csrfHeader = document.querySelector('#csrfHeader').content;
+
+    fetch("/comment",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-HTTP-Method-Override": "PATCH",
+        [csrfHeader]: csrfToken,
+      },
+      body: JSON.stringify(comment)
+    })
+      .then(response => response.text())
+      .then(data => {
+        alert(data);
+        commentList();
+        commentText.value = '';
+      })
+      .catch(error => console.log('댓글등록 Error 발생!: ',error));
+  });
+
+  function addEventListeners(commentElement) {
+    commentElement.querySelectorAll('[id^="commEditBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} ${e.target.dataset.cno} clicked1`);
+        /**
+         *  댓글수정 클릭, 수정폼뒤에 댓글내용 숨기기
+         */
+        let editForm = commentElement.querySelector("#commEditForm"); // id=commContainer 에서 row클래스명을 가진 첫번째 자손(댓글수정폼)
+        let commentRow = e.target.closest('.row'); // e.target이 포함된 row클래스를 제외한 가장가까운 row클래스명을가진 요소 => 댓글내용폼
+
+        editForm.querySelector('#editCommenter').value = commentRow.querySelector('#showCommenter').textContent;
+        editForm.querySelector('#editCommentText').value = commentRow.querySelector('#showCommentText').textContent;
+        // editForm.querySelector('#commEditAddBtn').dataset.cno = cno;
+        // commEditOk(commentElement, editForm);
+
+        // 댓글 내용 숨기기, 수정 폼 보이기
+        // commentRow.style.display = 'none';
+        editForm.style.display = 'block';
+        commentRow.classList.add('hidden'); // display를 적용하면 이상하게 html요소 배열 깨짐
+        // editForm.classList.remove('hidden');
+      });
+    });
+
+    commentElement.querySelectorAll('[id^="commEditAddBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} ${e.target.dataset.cno} clicked1`);
+        /**
+         *  수정완료
+         */
+        let cno = e.target.dataset.cno;
+        let commenter = commentElement.querySelector('#editCommenter').value;
+        let commentText = commentElement.querySelector('#editCommentText').value;
+
+        let editComment = {
+          cno: e.target.dataset.cno,
+          comm_depth: e.target.dataset.comm_depth,
+          comm_ref: e.target.dataset.comm_ref,
+          commenter: commenter,
+          commentText: commentText
+        };
+
+        fetch("/comment",{
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-HTTP-Method-Override": "PATCH",
+            [csrfHeader]: csrfToken,
+          },
+          body: JSON.stringify(editComment)
+        })
+          .then(resp => resp.text())
+          .then(data => {
+            let editForm = commentElement.querySelector("#commEditForm"); // id=commContainer 에서 row클래스명을 가진 첫번째 자손(댓글수정폼)
+            editForm.style.display = 'none'; // 수정이 완료됬으니 수정폼 닫기
+            commentElement.querySelector(".content").classList.remove('hidden'); // 수정이 완료됬으니 내용폼 닫기
+            alert(data);
+            commentList();
+          })
+          .catch(err => console.log('댓글수정 Error발생!!: ' + err))
+        // });
+      });
+    });
+
+    commentElement.querySelectorAll('[id^="commEditCancelBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} clicked1`);
+        /**
+         *  수정취소
+         */
+        let editForm = e.target.closest('#commEditForm');
+        let commentRow = commentElement.querySelector("#commViewForm");
+        commentRow.classList.remove('hidden'); // display를 적용하면 이상하게 html요소 배열 깨짐
+        editForm.style.display = 'none';
+      });
+    });
+
+    commentElement.querySelectorAll('[id^="replyBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} clicked1`);
+        /**
+         *  대댓글 클릭
+         */
+        let commenter = e.target.dataset.commenter;
+        if (commenter.includes('수정됨')){ // 그런대 닉네임에 수정됨이 들어갔을땐 어떻게? 수정됨을 따로 태그로 만들어서 display: none으로 처리하는게 좋을듯
+          let editedCommenter = commenter.split('(수정됨)');
+          commenter = editedCommenter[0].trim();
+        }
+        commentElement.querySelector('#replyCommentText').value = "@"+commenter+"  ";
+        commentElement.querySelector('#replyContainer').style.display = 'block';
+      });
+    });
+
+    commentElement.querySelectorAll('[id^="replyCommAddBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} clicked1`);
+        /**
+         *  대댓글 완료
+         */
+        console.log(e.target)
+        console.log(commentElement)
+        let comm_ref = e.target.dataset.comm_ref;
+        let comm_depth = e.target.dataset.comm_depth;
+        let replyCommenter = commentElement.querySelector('#replyCommenter').value;
+        let replyCommentText = commentElement.querySelector('#replyCommentText').value;
+
+        $.ajax({ // jquery.ajax
+          type: 'post',
+          url: '/comment/reply',
+          headers: {
+            "Content-Type" : "application/json",
+            "X-HTTP-Method-Override" : "POST",
+            [csrfHeader]: csrfToken,
+          },
+          dataType: 'text',
+          data: JSON.stringify({
+            bno: bno,
+            commenter: replyCommenter,
+            commentText: replyCommentText,
+            comm_ref: comm_ref,
+            comm_depth: comm_depth
+          }),
+          success: function (data){
+            if (data === '성공') { alert('대댓글 등록완료~!')};
+            commentList();
+          },
+          error: function (jqXHR, textStatus, errorThrown) { // 비동기식 ajax로 서버DB 데이터를 못가져와서 에러가 발생했을때 호출되는 함수
+            console.log('에러발생:', textStatus, errorThrown);
+          }
+        })
+      });
+    });
+
+    commentElement.querySelectorAll('[id^="replyCommCancelBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} clicked1`);
+        /**
+         *  대댓글 취소
+         */
+        commentElement.querySelector('#replyContainer').style.display = 'none';
+      });
+    });
+
+    commentElement.querySelectorAll('[id^="commDelBtn"]').forEach(button => {
+      button.addEventListener("click", (e) => {
+        // console.log(`${button.id} clicked1`);
+        /**
+         *  댓글삭제 로직
+         */
+        let getCno = e.target.dataset.cno;
+        let cno = {cno: getCno}
+        const csrfToken = document.querySelector('#csrfToken').content;
+        const csrfHeader = document.querySelector('#csrfHeader').content;
+
+        fetch("/comment",{
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "X-HTTP-Method-Override": "PATCH",
+            [csrfHeader]: csrfToken,
+          },
+          /* 이렇게 안하고 url에 파라미터로 추가하면 간단. 컨트롤러에서 @RequestBody Map<String, Long> 으로 받기연습 */
+          body: JSON.stringify(cno)
+        })
+          .then(resp => resp.text())
+          .then(data => {
+            alert(data);
+            commentList();
+          })
+          .catch(err => console.log('댓글삭제 Error발생!!: ' + err))
+      });
+    });
+  }
+</script>
+</body>
+</html>

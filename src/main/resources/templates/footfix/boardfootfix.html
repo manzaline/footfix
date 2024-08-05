@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" id="csrfToken">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" id="csrfHeader">
+  <link rel="icon" href="favicon.ico">
+  <title>경기일정</title>
+<!--    <script src="http://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+  <!-- Simple bar CSS -->
+  <link rel="stylesheet" href="../css/simplebar.css">
+  <!-- Fonts CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <!-- Icons CSS -->
+  <link rel="stylesheet" href="../css/feather.css">
+  <link rel="stylesheet" href="../css/dataTables.bootstrap4.css">
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="../css/daterangepicker.css">
+  <!-- App CSS -->
+<!--    <link rel="stylesheet" href="css/app-light.css" id="lightTheme" disabled>-->
+  <link rel="stylesheet" href="../css/app-dark.css" id="darkTheme">
+  <style>
+    .active{
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="vertical  dark  ">
+  <div class="wrapper">
+
+    <!-- 원본topnav.html의 nav태그가 중복되지 않고 렌더링하면서 이 곳의 nav태그를 완전히 대체한다 -->
+    <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
+    <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+
+    <main role="main" class="main-content">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <div class="row">
+              <!-- Small table -->
+              <div class="col-md-12 my-4">
+<!--                <h2 class="h4 mb-1" th:utext="${userId}"></h2>-->
+                <input type="image" src="https://media.api-sports.io/football/leagues/39.png">
+                <h2 class="h4 mb-1">프리미어리그</h2>
+                <p class="mb-3">프리미어리그 경기일정입니다. 원하시는 경기를 선택하고 알림등록을 하세요!</p>
+                <div class="card shadow">
+                  <div class="card-body">
+                    <div class="toolbar">
+                      <form class="form">
+                        <div class="form-row">
+                          <div class="form-group col-auto mr-auto">
+                            <select class="custom-select mr-sm-2" id="inlineFormCustomSelectPref1">
+                              <option value="20" >20</option>
+                              <option value="40" selected>40</option>
+                              <option value="80" >80</option>
+<!--                                <option value="">ALL</option>-->
+                            </select>
+                          </div>
+                          <div class="form-group col-auto">
+                            <label for="search" class="sr-only">Search</label>
+                            <input type="text" class="form-control" id="search" value="" placeholder="Search">
+                          </div>
+
+                        </div>
+                      </form>
+                    </div>
+                    <!-- table -->
+                    <table class="table table-borderless table-hover" id="footfix-table">
+                      <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th colspan="2" style="text-align: center">Home</th>
+                        <th>Score</th>
+                        <th colspan="2" style="text-align: center">Away</th>
+                        <th>Status</th>
+                        <th></th>
+                      </tr>
+                      </thead>
+                      <tbody id="bodyContainer">
+                        <tr th:each="fflItem, index : ${ffl}">
+                          <input type="hidden" th:value="${fflItem.fixture.id}" id="matchId" >
+                          <td th:utext="${fflItem.fixture.date}" id="date">Date</td>
+                          <td th:utext="${fflItem.teams.home.name}" id="homeName" style="text-align: center">Home</td>
+                          <td style="text-align: right">
+                            <img th:src="@{${fflItem.teams.home.logo}}" width="25px" height="25px" alt="Home Logo">
+                          </td>
+                          <td th:utext="${fflItem.goals.home} + ' - ' + ${fflItem.goals.away}" style="text-align: center">Score</td>
+                          <td style="text-align: left">
+                            <img th:src="@{${fflItem.teams.away.logo}}" width="25px" height="25px" alt="Away Logo">
+                          </td>
+                          <td th:utext="${fflItem.teams.away.name}" id="awayName" style="text-align: center">Away</td>
+                          <td th:utext="${fflItem.fixture.status.matchStatus}">Match Status</td>
+                          <td>
+                            <div class="custom-control custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" th:id="${index.count}">
+                              <label class="custom-control-label" th:for="${index.count}"></label>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div style="text-align: center" id="pagination"></div>
+                    <input type="hidden" th:value="${nickName}" id="nickName">
+                    <input type="hidden" th:value="${userId}" id="userId">
+                    <button type="button" id="saveDatas" class="btn mb-2 btn-primary btn-lg btn-block">알람등록</button>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- end section -->
+          </div> <!-- .col-12 -->
+        </div> <!-- .row -->
+      </div> <!-- .container-fluid -->
+      <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+
+    </main> <!-- main -->
+  </div> <!-- .wrapper -->
+
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/popper.min.js"></script>
+  <script src="../js/moment.min.js"></script>
+  <script src="../js/bootstrap.min.js"></script>
+  <script src="../js/simplebar.min.js"></script>
+  <script src='../js/jquery.stickOnScroll.js'></script>
+  <script src="../js/tinycolor-min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/apps.js"></script>
+
+  <script>
+    const csrfToken = document.querySelector('#csrfToken').content;
+    const csrfHeader = document.querySelector('#csrfHeader').content;
+    let rows = Array.from(document.querySelectorAll("tbody > tr"));
+    const userId = document.querySelector("#userId").value;
+
+    // 검색
+    function ready() {
+      let search = document.getElementById("search");
+      function keyup() {
+        let k = search.value.toLowerCase();
+        let targetRows = document.querySelectorAll("tbody > tr > td:nth-child(8n+2), td:nth-child(8n+6)");
+        let searchResult = Array.from(targetRows).filter(row => row.textContent.toLowerCase().includes(k)).map(row => row.parentNode);
+        rows.forEach(row => row.style.display = "none");
+        searchResult.forEach(row => row.style.display = "");
+        createPagination(searchResult, "pagination");
+      };
+      search.addEventListener("keyup", keyup);
+    }
+
+    // 페이징
+    function createPagination(rows, container) {
+      let pageSize = parseInt(document.querySelector("#inlineFormCustomSelectPref1").value); // select 요소의 값으로 초기화
+      let pageCount = Math.ceil(rows.length / pageSize);
+      let pagination = document.getElementById(container);
+      pagination.innerHTML = ""; /* 모든요소, 즉 페이징 번호를 제거. while문으로 removeChild()로 firstChild를 지워도 됨 */
+      for (let i = 1; i <= pageCount; i++) {
+        let page = document.createElement("a");
+        page.innerText = i;
+        page.style.margin = "5px";
+        page.style.cursor = "pointer";
+        page.addEventListener("click", function () {
+          // 현재 페이지 번호를 가져온다.
+          let currentPage = parseInt(this.innerText);
+          // 행들을 숨기거나 보여준다.
+          rows.forEach(row => row.style.display = "none");
+          for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i++) {
+            if(rows[i]) {
+              rows[i].style.display = "";
+            }
+          }
+          // 페이지 번호에 active 클래스를 추가하거나 제거한다.
+          pagination.querySelectorAll("a").forEach(a => a.classList.remove("active"));
+          this.classList.add("active");
+        });
+        pagination.appendChild(page);
+      };
+      // 첫 번째 페이지 번호를 클릭한다.
+      pagination.firstChild.click();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      ready();
+      createPagination(rows, "pagination");
+    });
+
+    // select 요소에 change 이벤트 리스너를 추가
+    let select = document.querySelector("#inlineFormCustomSelectPref1");
+    select.addEventListener("change", function() {
+      // 현재 검색 결과를 가져온다
+      let k = document.getElementById("search").value.toLowerCase();
+      let targetRows = document.querySelectorAll("tbody > tr > td:nth-child(8n+2), td:nth-child(8n+6)");
+      let searchResult = Array.from(targetRows).filter(row => row.textContent.toLowerCase().includes(k)).map(row => row.parentNode);
+      // 페이징 함수를 호출한다
+      createPagination(searchResult, "pagination");
+    });
+
+    // dates에 체크한 경기의 정보담기
+    let bodyContainer = document.querySelector("#bodyContainer");
+    let datas = [];
+
+    bodyContainer.addEventListener("change",(e) => {
+      let data = '';
+      data += userId;
+      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#matchId").value;
+      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#date").textContent;
+      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#homeName").textContent;
+      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#awayName").textContent;
+
+      if(e.target.checked && !datas.includes(data)){
+        datas.push(data);
+        console.log(datas);
+      }else if(!e.target.checked && datas.includes(data)){
+        datas = datas.filter(item => item !== data);
+        console.log(datas);
+      }
+    });
+  </script>
+
+  <script type=module>
+
+    const saveDatas = document.querySelector("#saveDatas");
+    let tokenList = [];
+
+    // DB에서 userId를 이용해 토큰 가져오기
+    fetch(`/notification/getToken/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [csrfHeader]: csrfToken,
+      }
+    })
+      .then(resp => resp.json())
+      .then(data => {
+        tokenList = data;
+        console.log(data);
+      })
+    .catch(err => console.error('에러!: '+err))
+
+    // 체크한 경기 DB에 저장
+    saveDatas.addEventListener("click",() => {
+      const nickName = document.querySelector("#nickName").value;
+      fetch(`/footfix/saveDate/${userId}`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-HTTP-Method-Override": "PATCH",
+          [csrfHeader]: csrfToken,
+        },
+        body: JSON.stringify({
+          nickName: nickName,
+          datas: datas,
+        }),
+      })
+        .then(resp => resp.text()) // 서버에서 받아온 문자열을 텍스트로 변환. resp.text()는 비동기 함수이므로, 이 함수는 Promise를 반환
+        .then(data => alert(data)) // 변환된 텍스트를 알림
+      .catch(err => console.error('에러!: '+err))
+
+      // FCM푸시알림 등록
+      fetch(`/notification/schedule/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          [csrfHeader]: csrfToken,
+        },
+        body: JSON.stringify({
+          tokenList: tokenList,
+          datas: datas,
+          image: 'https://media.api-sports.io/football/leagues/39.png',
+        })
+      })
+      .then(rsp => rsp.text())
+      .then(data => alert(data))
+      .catch(err => console.error('에러!: '+err))
+    });
+
+  </script>
+
+</body>
+</html>

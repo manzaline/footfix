@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.footfix.dao.BoardDAO"> <!-- 매퍼 인터페이스의 이름과 동일하게 지정 -->
+
+  <insert id="bbs_in" parameterType="com.footfix.dto.BoardDTO">
+    <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">
+      SELECT NEXT VALUE FOR bbs_noRef_seq
+    </selectKey>
+    INSERT INTO bbs_footfix (bbs_no,bbs_title,bbs_writer,bbs_cont,bbs_fileName,bbs_filePath,bbs_ref)
+    VALUES (#{bbs_no},#{bbs_title},#{bbs_writer},#{bbs_cont},#{bbs_fileName},#{bbs_filePath},#{bbs_no})
+  </insert>
+
+  <select id="bbs_list" resultType="com.footfix.dto.BoardDTO">
+    SELECT * FROM (
+      SELECT ROWNUM rNum,bbs_no,bbs_writer,bbs_title,bbs_hit,bbs_ref,bbs_step,bbs_depth,bbs_regdate
+      FROM (SELECT * FROM bbs_footfix
+
+      <where>
+        <if test="find_field == ''"></if>
+        <if test="find_field == 'title'">
+          bbs_title like #{find_name}
+        </if>
+        <if test="find_field == 'cont'">
+          bbs_cont like #{find_name}
+        </if>
+        <if test="find_field == 'writer'">
+          bbs_writer like #{find_name}
+        </if>
+        <if test="find_field == 'title+cont'">
+          bbs_cont like #{find_name} or bbs_title like #{find_name}
+        </if>
+      </where>
+
+      ORDER BY bbs_ref DESC , bbs_step ASC)
+    ) WHERE rNum &gt;= #{startRow} and rNum &lt;= #{endRow}
+
+  </select>
+
+  <delete id="bbs_del">
+    DELETE FROM bbs_footfix WHERE bbs_no = #{bno}
+  </delete>
+
+  <select id="bbs_count" resultType="int">
+    SELECT COUNT(*) FROM bbs_footfix /* *대신 bbs_no를 넣어도 됨. 처리속도 개선? */
+
+    <where>
+      <if test="find_field == ''"></if>
+      <if test="find_field == 'title'">
+        bbs_title like #{find_name}
+      </if>
+      <if test="find_field == 'cont'">
+        bbs_cont like #{find_name}
+      </if>
+      <if test="find_field == 'writer'">
+        bbs_writer like #{find_name}
+      </if>
+      <if test="find_field == 'title+cont'">
+        bbs_cont like #{find_name} or bbs_title like #{find_name}
+      </if>
+    </where>
+
+  </select>
+
+  <select id="bbs_get" resultType="com.footfix.dto.BoardDTO">
+    SELECT * FROM bbs_footfix WHERE bbs_no = #{bno}
+  </select>
+
+  <update id="bbs_hit">
+    UPDATE bbs_footfix SET bbs_hit = bbs_hit+1 WHERE bbs_no = #{bno}
+  </update>
+
+  <update id="bbs_edit" parameterType="com.footfix.dto.BoardDTO">
+    UPDATE bbs_footfix SET bbs_writer=#{bbs_writer},
+                           bbs_title=#{bbs_title},
+                           bbs_cont=#{bbs_cont},
+                           bbs_editdate=CURRENT_TIMESTAMP,
+                           bbs_fileName=#{bbs_fileName},
+                           bbs_filePath=#{bbs_filePath}
+    WHERE bbs_no = #{bbs_no}
+  </update>
+
+  <!-- 답변레벨 업 -->
+  <update id="up_reply" parameterType="com.footfix.dto.BoardDTO">
+
+  </update>
+<!--  UPDATE bbs_footfix-->
+<!--  SET bbs_step = bbs_step + 1-->
+<!--  WHERE bbs_ref = #{bbs_ref}-->
+<!--  AND bbs_step > (SELECT bbs_step FROM bbs_footfix WHERE bbs_ref = #{bbs_ref})-->
+
+<!--  UPDATE bbs_footfix-->
+<!--  SET bbs_step = bbs_step + 1-->
+<!--  WHERE bbs_ref = (SELECT * FROM (SELECT bbs_ref WHERE bbs_ref = #{bbs_ref}) AS BB)-->
+<!--  AND bbs_step > (SELECT * FROM (SELECT bbs_step WHERE bbs_ref = #{bbs_ref}) AS BB2)-->
+
+  <!-- 답변저장-->
+  <insert id="in_reply" parameterType="com.footfix.dto.BoardDTO">
+      <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">
+        SELECT NEXT VALUE FOR bbs_noRef_seq
+      </selectKey>
+      INSERT INTO bbs_footfix (bbs_no,bbs_writer, bbs_title, bbs_cont, bbs_fileName, bbs_filePath ,bbs_ref, bbs_step, bbs_depth)
+      VALUES (#{bbs_no}, #{bbs_writer}, #{bbs_title}, #{bbs_cont},
+              #{bbs_fileName}, #{bbs_filePath},
+              #{bbs_ref},
+              (SELECT max(bbs_step) FROM bbs_footfix AS BB4 WHERE bbs_ref = #{bbs_ref}) + 1,
+              #{bbs_depth} + 1)
+    </insert>
+    <!--    <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">-->
+  <!--      SELECT NEXT VALUE FOR bbs_noRef_seq-->
+  <!--    </selectKey>-->
+  <!--    INSERT INTO bbs_footfix (bbs_no, bbs_writer, bbs_title, bbs_cont, bbs_ref, bbs_step, bbs_depth)-->
+  <!--    VALUES (#{bbs_no}, #{bbs_writer}, #{bbs_title}, #{bbs_cont}, #{bbs_ref}, #{bbs_step}+1, #{bbs_depth}+1)-->
+
+<!--  <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">-->
+<!--    SELECT NEXT VALUE FOR bbs_noRef_seq-->
+<!--  </selectKey>-->
+<!--  INSERT INTO bbs_footfix (bbs_no,bbs_writer, bbs_title, bbs_cont, bbs_ref, bbs_step, bbs_depth)-->
+<!--  VALUES (#{bbs_no}, #{bbs_writer}, #{bbs_title}, #{bbs_cont},-->
+<!--  (SELECT bbs_ref FROM bbs_footfix AS BB3 WHERE bbs_ref = #{bbs_ref}),-->
+<!--  (SELECT bbs_step FROM bbs_footfix AS BB4 WHERE bbs_ref = #{bbs_ref}) + 1,-->
+<!--  (SELECT bbs_depth FROM bbs_footfix AS BB5 WHERE bbs_ref = #{bbs_ref}) + 1)-->
+</mapper>
