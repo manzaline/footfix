@@ -28,8 +28,11 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 //    auth.getAuthorities().forEach(authority ->
 //            roles.addAll(Arrays.asList(authority.getAuthority().split(","))));
 
-    HttpSession session = request.getSession();
-    session.setMaxInactiveInterval(5000); // 세션 타임아웃. 초단위
+    HttpSession session = request.getSession(false);
+    session.setMaxInactiveInterval(3600); // 세션 타임아웃(클라이언트의 요청이 없을때 세션을 유지하는 시간), 초단위
+    session.setAttribute("testKey","testValue");
+
+    System.out.println("\n세션의 getId(): "+session.getId()); // JSESSIONID의 쿠키값
 
     System.out.println("\nROLES : " + roles + "환영합니다~! *^^*");
 

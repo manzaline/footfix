@@ -6,6 +6,8 @@ import com.footfix.dto.FootfixUserDatesDTO;
 import com.footfix.security.config.auth.PrincipalDetails;
 import com.footfix.security.config.oauth.PrincipalOAuth2UserService;
 import com.footfix.security.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDetail;
@@ -150,11 +152,14 @@ public class CommonController {
 
   @RequestMapping("/index")
   public String index(
-          Model model){
+          Model model, HttpSession session, HttpServletRequest request){
 
     String nickName = getNickName();
     Long userId = getId();
+     session = request.getSession(false); // 세션이 존재하지 않다면 생성하지않고 null반환
+    String testvalue = (String) session.getAttribute("testKey");
 
+    model.addAttribute("testvalue",testvalue);
     model.addAttribute("nickName",nickName);
     model.addAttribute("userId",userId);
     return "/index";

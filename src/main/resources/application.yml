@@ -1,9 +1,10 @@
 server:
   servlet:
     session:
-      timeout: 30m # 60초
+      persistent: false # 기본값은 false지만 spring-boot-devtools 라이브러리가 true로 설정(재시작/핫 리로드기능때문?)하기때문에 명시해주는것이 좋다
+      timeout: 70s # 60초 CustomLoginSuccessHandler.java 에 개별세션에대한 타임아웃설정이 우선
 #      cookie:
-#        max-age: 70
+#        max-age: 1s # 기본단위 초
 
 
 spring:

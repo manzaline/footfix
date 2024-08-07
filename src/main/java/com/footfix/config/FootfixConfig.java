@@ -30,35 +30,10 @@ import java.io.IOException;
 @Configuration
 public class FootfixConfig {
 
-//  @Value("${spring.datasource.driver-class-name}")
-//  private String driverClassName;
-//  @Value("${spring.datasource.url}")
-//  private String url;
-//  @Value("${spring.datasource.username}")
-//  private String username;
-//  @Value("${spring.datasource.password}")
-//  private String password;
-
   @Value("${iamport.api_key}")
   private String apiKey;
   @Value("${iamport.api_secret}")
   private String apiSecret;
-
-//  public final DataSource dataSource;
-//  public FootfixConfig(DataSour33ce dataSource) { // dataSource에러는 intellij 버그;;
-//    this.dataSource = dataSource;
-//  }
-
-  // proerties가 아닌 자바코드로 dataSouce() 설정
-//  @Bean
-//  public DataSource dataSource() {
-//    DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-//    dataSourceBuilder.driverClassName(driverClassName);
-//    dataSourceBuilder.url(url);
-//    dataSourceBuilder.username(username);
-//    dataSourceBuilder.password(password);
-//    return dataSourceBuilder.build();
-//  }
 
   @Bean
   public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
@@ -96,7 +71,20 @@ public class FootfixConfig {
     return new IamportClient(apiKey, apiSecret);
   }
 
-  // 자동로그인 메모리인증 방식
+  // Remember-me DB연동 방식. 보안성이 좋고 유연하며 확장성이 뛰어남
+  @Bean
+  public PersistentTokenBasedRememberMeServices customRememberMeServices(
+          UserDetailsService userDetailsService, JpaPersistentTokenRepository tokenRepository) {
+
+    PersistentTokenBasedRememberMeServices rememberMeServices =
+            new PersistentTokenBasedRememberMeServices("footfix", userDetailsService, tokenRepository);
+    rememberMeServices.setCookieName("footfix-remember-me");
+    rememberMeServices.setTokenValiditySeconds(10);
+    return rememberMeServices;
+  }
+
+
+  // Remember-me 메모리연동 방식. DB사용 안함. 설정이 간단하고 소규모에서 사용. 보안은 좋지않음.
 //  @Bean
 //  RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
 //    TokenBasedRememberMeServices.RememberMeTokenAlgorithm encodingAlgorithm = TokenBasedRememberMeServices.RememberMeTokenAlgorithm.SHA256;
@@ -105,20 +93,4 @@ public class FootfixConfig {
 //    rememberMe.setMatchingAlgorithm(TokenBasedRememberMeServices.RememberMeTokenAlgorithm.MD5);
 //    return rememberMe;
 //  }
-
-  // 자동로그인 DB연동 방식
-  @Bean
-  public PersistentTokenBasedRememberMeServices customRememberMeServices(
-          UserDetailsService userDetailsService, JpaPersistentTokenRepository tokenRepository) {
-
-    // TokenBasedRememberMeServices 대신 PersistentTokenBasedRememberMeServices 객체를 생성한다
-    PersistentTokenBasedRememberMeServices rememberMeServices =
-            new PersistentTokenBasedRememberMeServices("footfix", userDetailsService, tokenRepository);
-    rememberMeServices.setCookieName("footfix-remember-me");
-    rememberMeServices.setTokenValiditySeconds(5000);
-
-    // PersistentTokenBasedRememberMeServices는 setMatchingAlgorithm 메서드가 없으므로 삭제한다
-//     rememberMe.setMatchingAlgorithm(TokenBasedRememberMeServices.RememberMeTokenAlgorithm.MD5);
-    return rememberMeServices;
-  }
 }

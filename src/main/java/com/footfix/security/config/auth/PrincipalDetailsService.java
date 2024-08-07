@@ -38,16 +38,14 @@ public class PrincipalDetailsService implements UserDetailsService {
 
   // loadUserByUsername() 종료시 @AuthenticationPrincipal 어노테이션이 만들어진다.
   @Override
-  // 4줄 아래의 findByUsername을 통한 인증을위해 로그인폼에서 작성한 아이디를 가져온다
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
     System.out.println("\nPrincipalDetailsService.loadUserByUsername호출!!!");
     System.out.println("\n사용자 이름 : " + username);
-//    MemberDTO memberDTO = this.memberRepository.findByUsername(username);
+//    MemberDTO memberDTO = this.memberRepository.findByUsername(username); // MyBatis 기법
     // JPA를 이용해 domain패키지의 User클래스로 생성된 User테이블 검색
-    User userEntity = this.userRepository.findByUsername(username)
+    User userEntity = this.userRepository.findByUsername(username) // JPA 기법
             .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다"));
-//    System.out.println("\nuserRepository.findByUsername로 불러온 회원정보 : " + userEntity); //User클래스와 FCMNotificationTOken클래스가 재귀 무한루프에 빠진다. 사용하려면 toString()을 재정의해줘야한다
 
     return new PrincipalDetails(userEntity);
 

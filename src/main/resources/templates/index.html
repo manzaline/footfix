@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" id="csrfToken">
+  <meta name="_csrf" th:content="${_csrf.token}" id="csrfToken">
   <meta name="_csrf_header" th:content="${_csrf.headerName}" id="csrfHeader">
   <link rel="icon" href="favicon.ico">
   <title>풋픽스 홈화면</title>
   <!-- Simple bar CSS -->
   <link rel="stylesheet" href="../css/simplebar.css">
   <!-- Fonts CSS -->
-  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+<!--  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">-->
   <!-- Icons CSS -->
   <link rel="stylesheet" href="../css/feather.css">
 <!--  <link rel="stylesheet" href="../css/select2.css">-->
@@ -61,8 +61,9 @@
           </div>
 
           <div class="form-group">
-            <h2 th:utext="${(nickName == null)? '아이디없다' : 'nickName: '+nickName}"></h2>
-            <h2 th:utext="${(userId == null)? 'ID없다' : 'userId: '+userId}"></h2>
+            <h2 th:utext="${(nickName == null)? '아이디없음' : 'nickName: '+nickName}"></h2>
+            <h2 th:utext="${(userId == null)? 'ID없음' : 'userId: '+userId}"></h2>
+            <h2 th:utext="${(testvalue == null)? '세션없음' : '세션의 testKey의 값: '+testvalue}"></h2>
           </div>
 
           <div class="col-md-3" style="position: fixed; top: 175px; right: 15px; width: 19vw; height: 100vh;">
@@ -111,8 +112,8 @@
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
 
-  const csrfToken = document.querySelector('#csrfToken').content;
-  const csrfHeader = document.querySelector('#csrfHeader').content;
+  const csrfToken = document.querySelector('#csrfToken').getAttribute('content');
+  const csrfHeader = document.querySelector('#csrfHeader').getAttribute('content');
 
   // Service Worker 등록
   if ('serviceWorker' in navigator) {
