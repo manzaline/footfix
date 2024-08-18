@@ -31,8 +31,8 @@
 <body class="vertical  dark  ">
 <div class="wrapper">
 
-  <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
-  <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+  <nav th:replace="~{/nav/topnav :: mytopnav}"></nav>
+  <aside th:replace="~{/nav/leftnav :: myleftnav}"></aside>
 
   <input type="hidden" th:value="${userId}" id="userId">
 
@@ -85,7 +85,7 @@
       </div> <!-- .row -->
     </div> <!-- .container-fluid -->
 
-    <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+    <div th:replace="~{/nav/rightnav :: myrightnav}"></div>
 
   </main> <!-- main -->
 </div> <!-- .wrapper -->

@@ -25,8 +25,8 @@
 <body class="vertical  dark  ">
 <div class="wrapper">
 
-  <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
-  <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+  <nav th:replace="~{/nav/topnav :: mytopnav}"></nav>
+  <aside th:replace="~{/nav/leftnav :: myleftnav}"></aside>
 
   <main role="main" class="main-content">
     <div class="container-fluid">
@@ -231,7 +231,7 @@
       </div>
     </div>
 
-    <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+    <div th:replace="~{/nav/rightnav :: myrightnav}"></div>
 
   </main> <!-- main -->
 </div> <!-- .wrapper -->

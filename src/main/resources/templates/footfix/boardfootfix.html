@@ -34,8 +34,8 @@
   <div class="wrapper">
 
     <!-- 원본topnav.html의 nav태그가 중복되지 않고 렌더링하면서 이 곳의 nav태그를 완전히 대체한다 -->
-    <nav th:replace="~{nav/topnav :: mytopnav}"></nav>
-    <aside th:replace="~{nav/leftnav :: myleftnav}"></aside>
+    <nav th:replace="~{/nav/topnav :: mytopnav}"></nav>
+    <aside th:replace="~{/nav/leftnav :: myleftnav}"></aside>
 
     <main role="main" class="main-content">
       <div class="container-fluid">
@@ -115,7 +115,7 @@
           </div> <!-- .col-12 -->
         </div> <!-- .row -->
       </div> <!-- .container-fluid -->
-      <div th:replace="~{nav/rightnav :: myrightnav}"></div>
+      <div th:replace="~{/nav/rightnav :: myrightnav}"></div>
 
     </main> <!-- main -->
   </div> <!-- .wrapper -->

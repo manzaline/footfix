@@ -114,9 +114,10 @@ public class CommonController {
   }
 
   @GetMapping("/accessError")
-  public void accessDenied(Model model){
+  public String accessDenied(Model model){
     System.out.println("접근 금지!!");
     model.addAttribute("msg","접근 금지페이지 입니다~!!");
+    return "/accessError";
   }
 
   @GetMapping("/customLogin")
@@ -133,7 +134,7 @@ public class CommonController {
       model.addAttribute("logout","로그아웃~!!");
     }
     return "/customLogin";
-  }//customLogin 매핑주소
+  }
 
   @GetMapping("/customLogout")
   public void logoutGet() {}

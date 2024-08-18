@@ -1,10 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="_csrf" th:content="${_csrf.token}" id="csrfToken">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" id="csrfHeader">
+  <link rel="icon" href="favicon.ico">
+  <title>풋픽스 홈화면</title>
+  <!-- Simple bar CSS -->
+  <link rel="stylesheet" href="../css/simplebar.css">
+  <!-- Fonts CSS -->
+  <!--  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">-->
+  <!-- Icons CSS -->
+  <link rel="stylesheet" href="../css/feather.css">
+  <!--  <link rel="stylesheet" href="../css/select2.css">-->
+  <!--  <link rel="stylesheet" href="../css/dropzone.css">-->
+  <!--  <link rel="stylesheet" href="../css/uppy.min.css">-->
+  <!--  <link rel="stylesheet" href="../css/jquery.steps.css">-->
+  <!--  <link rel="stylesheet" href="../css/jquery.timepicker.css">-->
+  <!--  <link rel="stylesheet" href="../css/quill.snow.css">-->
+  <!-- Date Range Picker CSS -->
+  <!--  <link rel="stylesheet" href="../css/daterangepicker.css">-->
+  <!-- App CSS -->
+  <link rel="stylesheet" href="../css/app-light.css" id="lightTheme" disabled>
+  <link rel="stylesheet" href="../css/app-dark.css" id="darkTheme">
 </head>
-<body>
-$END$
+
+<body class="vertical  dark  ">
+<div class="wrapper">
+
+  <nav th:replace="~{/nav/topnav :: mytopnav}"></nav>
+  <aside th:replace="~{/nav/leftnav :: myleftnav}"></aside>
+
+  <input type="hidden" th:value="${userId}" id="userId">
+
+  <main role="main" class="main-content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <div class="row align-items-center mb-2">
+            <div class="col">
+              <h2 class="h5 page-title">Welcome!</h2>
+            </div>
+            <div class="col-auto">
+              <form class="form-inline">
+                <div class="form-group d-none d-lg-inline">
+                  <label for="reportrange" class="sr-only">Date Ranges</label>
+                  <div id="reportrange" class="px-2 py-2 text-muted">
+                    <span class="small"></span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <button type="button" class="btn btn-sm"><span class="fe fe-refresh-ccw fe-16 text-muted"></span></button>
+                  <button type="button" class="btn btn-sm mr-2"><span class="fe fe-filter fe-16 text-muted"></span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <h2 th:utext="${(nickName == null)? '아이디없음' : 'nickName: '+nickName}"></h2>
+            <h2 th:utext="${(userId == null)? 'ID없음' : 'userId: '+userId}"></h2>
+            <h2 th:utext="${(testvalue == null)? '세션없음' : '세션의 testKey의 값: '+testvalue}"></h2>
+          </div>
+
+          <div class="col-md-3" style="position: fixed; top: 175px; right: 15px; width: 19vw; height: 100vh;">
+            <div class="card shadow mb-4">
+              <div class="card-body">
+                <h3 class="h5 mb-1">Integrations</h3>
+                <p class="text-muted mb-4">How to integrate the theme?</p>
+                <ul class="list-unstyled">
+                  <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Lorem ipsum dolor sit amet</li>
+                  <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Consectetur adipiscing elit</li>
+                  <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Integer molestie lorem</li>
+                  <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Facilisis in pretium</li>
+                  <li class="my-1"><i class="fe fe-file-text mr-2 text-muted"></i>Nulla volutpat aliquam velit</li>
+                </ul>
+              </div>
+            </div>
+          </div> <!-- .col-md -->
+        </div> <!-- .col-12 -->
+      </div> <!-- .row -->
+    </div> <!-- .container-fluid -->
+
+    <div th:replace="~{/nav/rightnav :: myrightnav}"></div>
+
+  </main> <!-- main -->
+</div> <!-- .wrapper -->
+
+<!-- FCM푸시알림 -->
+<script type="module">
+  // SDK로부터 중요기능들 import
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB5jI4VASgpwYPLRZ26qLoeS6aYGV3Nhh4",
+    authDomain: "footfix-f417c.firebaseapp.com",
+    projectId: "footfix-f417c",
+    storageBucket: "footfix-f417c.appspot.com",
+    messagingSenderId: "362737595673",
+    appId: "1:362737595673:web:9f2e44f894f7556a570188",
+    measurementId: "G-YPQCLQW43Y"
+  };
+
+  // Firebase 초기화
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  const csrfToken = document.querySelector('#csrfToken').getAttribute('content');
+  const csrfHeader = document.querySelector('#csrfHeader').getAttribute('content');
+
+  // Service Worker 등록
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then(function(registration) {
+          console.log('Service Worker 등록 성공: ', registration.scope);
+        }, function(err) {
+          console.log('Service Worker 등록 실패: ', err);
+        });
+    });
+  }
+
+  const messaging = getMessaging(app);
+  const userId = document.querySelector("#userId").value;
+
+  //토큰값 얻기
+  getToken(messaging)
+    .then((currentToken) => {
+      if (currentToken) {
+        console.log("userId: " + userId);
+
+        // 서버로 토큰값 전송
+        fetch(`/notification/saveToken/${userId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken,
+          },
+          body: JSON.stringify({ token: currentToken }),
+        })
+          .then(response => response.text())
+          .then(data => console.log('서버로 부터 받은 fcm토큰:', data))
+          .catch((error) => console.error('에러:', error));
+      } else {
+        console.log(
+          "No registration token available. Request permission to generate one."
+        );
+      }
+    })
+    .catch((err) => {
+      console.log("에러 : ", err);
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--<script src="../js/popper.min.js"></script>-->
+<!--<script src="../js/moment.min.js"></script>-->
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/simplebar.min.js"></script>
+<!--<script src='../js/daterangepicker.js'></script>-->
+<script src='../js/jquery.stickOnScroll.js'></script>
+<script src="../js/tinycolor-min.js"></script> <!-- 다크모드 -->
+<script src="../js/config.js"></script> <!-- 다크모드 -->
+<script src="../js/apps.js"></script>
+<!--<script src="../js/d3.min.js"></script>-->
+<!--<script src="../js/topojson.min.js"></script>-->
+<!--<script src="../js/datamaps.all.min.js"></script>-->
+<!--<script src="../js/datamaps-zoomto.js"></script>-->
+<!--<script src="../js/datamaps.custom.js"></script>-->
+<!--<script src="../js/Chart.min.js"></script>-->
+<!--<script src="../js/gauge.min.js"></script>-->
+<!--<script src="../js/jquery.sparkline.min.js"></script>-->
+<!--<script src="../js/apexcharts.min.js"></script>-->
+<!--<script src="../js/apexcharts.custom.js"></script>-->
+<!--<script src='../js/jquery.mask.min.js'></script>-->
+<!--<script src='../js/select2.min.js'></script>-->
+<!--<script src='../js/jquery.steps.min.js'></script>-->
+<!--<script src='../js/jquery.validate.min.js'></script>-->
+<!--<script src='../js/jquery.timepicker.js'></script>-->
+<!--<script src='../js/dropzone.min.js'></script>-->
+<!--<script src='../js/uppy.min.js'></script>-->
+<!--<script src='../js/quill.min.js'></script>-->
+
 </body>
 </html>

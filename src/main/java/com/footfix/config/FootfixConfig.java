@@ -2,38 +2,47 @@ package com.footfix.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.footfix.security.repository.JpaPersistentTokenRepository;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.siot.IamportRestClient.IamportClient;
-import jakarta.annotation.PostConstruct;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 @Configuration
 public class FootfixConfig {
 
+  @Value("${spring.datasource.driver-class-name}")
+  private String driverClassName;
+  @Value("${spring.datasource.url}")
+  private String url;
+  @Value("${spring.datasource.username}")
+  private String username;
+  @Value("${spring.datasource.password}")
+  private String password;
   @Value("${iamport.api_key}")
   private String apiKey;
   @Value("${iamport.api_secret}")
   private String apiSecret;
+
+  @Bean
+  public DataSource dataSource() {
+    return DataSourceBuilder.create()
+            .driverClassName(driverClassName)
+            .url(url)
+            .username(username)
+            .password(password)
+            .build();
+  }
 
   @Bean
   public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {

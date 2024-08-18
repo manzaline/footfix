@@ -7,10 +7,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -25,7 +22,9 @@ public class FCMConfig {
   FirebaseMessaging firebaseMessaging() throws IOException {
 //    ClassPathResource resource = new ClassPathResource("배포경로 firebase/파일이름.java");
 //    InputStream refreshToken = resource.getInputStream();
-    FileInputStream refreshToken = new FileInputStream(fcmKeyPath);
+
+//    FileInputStream refreshToken = new FileInputStream(fcmKeyPath); // 로컬에서 개발할때
+    InputStream refreshToken = getClass().getClassLoader().getResourceAsStream("footfix-f417c-firebase-adminsdk-7fwsl-8e0ba158e8.json"); // jar파일로 실행할때는 resources경로가 사라진다.
 
     FirebaseApp firebaseApp = null;
     List<FirebaseApp> firebaseAppList = FirebaseApp.getApps();
