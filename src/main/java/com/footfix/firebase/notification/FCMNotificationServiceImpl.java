@@ -38,7 +38,7 @@ public class FCMNotificationServiceImpl {
       }
 
 //      String timeString = splitData[2];
-      String timeString = "2024-08-19 15:11"; // 테스트를 위한 알림시간 강제설정
+      String timeString = "2024-08-19 15:27"; // 테스트를 위한 알림시간 강제설정
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
       LocalDateTime localDateTime = LocalDateTime.parse(timeString, formatter);
 
