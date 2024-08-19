@@ -20,7 +20,7 @@ const firebaseConfig = firebase.initializeApp({
 // 백그라운드 메시지를 처리할 수 있도록 Firebase Messaging 인스턴스를 가져옵니다.
 const messaging = firebase.messaging();
 
-self.addEventListener('push', (event) => {
+self.addEventListener('push', event => {
   const notificationData = event.data.json();
   const data = notificationData.data;
   console.log('서비스워커가 받은 data:', data); // 디버깅을 위해 추가
@@ -32,9 +32,27 @@ self.addEventListener('push', (event) => {
     image: data.image,
   };
 
-  self.registration.showNotification(data.title, options)
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      let isForeground = false;
 
-  // event.waitUntil(
-  //   self.registration.showNotification(data.title, options)
-  // );
+      for (let i = 0; i < clients.length; i++) {
+        const client = clients[i];
+        if (client.visibilityState === 'visible') {
+          isForeground = true;
+          break;
+        }
+      }
+
+      // 포어그라운드 상태일 때만 알림 표시
+      if (isForeground) {
+        self.registration.showNotification(data.title, options);
+      }
+    })
+  );
+
 });
+
+
+
+
