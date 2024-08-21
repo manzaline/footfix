@@ -9,25 +9,34 @@ server:
 spring:
   thymeleaf:
     cache: false
-    # 템플릿 위치 / View 파일 위치
     prefix: classpath:/templates
     suffix: .html
 
-
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:tcp://localhost/~/test;NON_KEYWORDS=USER # 예약어 user 강제해제
-    username: sa
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mydb # ;NON_KEYWORDS=USER 예약어 user 강제해제
+    username: root
+    password: 1234
+  #    AWD RDS 연결(url변경)
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://rds-mysql.cpag6cmwknpz.us-east-1.rds.amazonaws.com:3306/rds_mysql # ;NON_KEYWORDS=USER 예약어 user 강제해제
+#    username: admin
+#    password: qwerasdf
 
   h2:
     console:
-      enabled: truec
+      enabled: true
 
   jpa:
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        hbm2ddl:
+          auto: update
+          show-sql: true
+#    hibernate:
+#      ddl-auto: create
+#      show-sql: true
 
   security:
     oauth2:

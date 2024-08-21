@@ -56,7 +56,7 @@ public class BoardServiceImpl implements BoardService{
   @Override
   @Transactional
   public void replyBbs(BoardDTO boardDTO) {
-    this.boardDAO.depthUpReplyBbs(boardDTO);
+//    this.boardDAO.depthUpReplyBbs(boardDTO);
     this.boardDAO.replyBbs(boardDTO);
   }
 }
