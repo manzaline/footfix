@@ -11,17 +11,22 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity(name = "users")
 @Data
 @NoArgsConstructor
-@Entity
 public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @Column(nullable = false, unique = true)
   private String username;
+  @Column(nullable = false)
   private String password;
+  @Column(nullable = false, unique = true)
   private String email;
+  @Column(nullable = false)
   private String role;
 
   private String provider;
@@ -30,6 +35,7 @@ public class User {
   @CreationTimestamp
   private Timestamp createDate;
 
+  // mappedBy 속성은 FCMNotificationToken 클래스의 user 필드를 설정
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, orphanRemoval = true)
   private List<FCMNotificationToken> fcmNotificationTokens = new ArrayList<>();
 
@@ -47,17 +53,4 @@ public class User {
     this.provider = provider;
     this.providerId = providerId;
   }
-
-//  @Override
-//  public String toString() {
-//    return "User{" +
-//            "id=" + id +
-//            ", username='" + username + '\'' +
-//            ", email='" + email + '\'' +
-//            ", role='" + role + '\'' +
-//            ", provider='" + provider + '\'' +
-//            ", providerId='" + providerId + '\'' +
-//            ", createDate=" + createDate +
-//            '}';
-//  }
 }

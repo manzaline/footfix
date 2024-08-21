@@ -2,13 +2,12 @@ package com.footfix.firebase.notification;
 
 import com.footfix.domain.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class FCMNotificationToken {
 
   @Id
@@ -26,12 +25,4 @@ public class FCMNotificationToken {
     this.user = user;
     this.token = token;
   }
-
-//  @Override
-//  public String toString() {
-//    return "FCMNotificationToken{" +
-//            "id=" + id +
-//            ", token='" + token + '\'' +
-//            '}';
-//  }
 }

@@ -1,32 +1,40 @@
 package com.footfix;
 
+import com.footfix.domain.User;
+import com.footfix.security.repository.UserRepository;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 @SpringBootTest
 public class MemberTests {
 
   @Setter(onMethod_ = @Autowired) //setter()매서드를 통한 의존성 즉 DI주입
   // @ContextConfiguration에 의해 지정된 security설정파일의 빈을 주입해준다
-  private PasswordEncoder pwencoder;
+  private BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Setter(onMethod_ = @Autowired)
   private DataSource dataSource; //커넥션 풀 관리 ds
 
+  @Autowired
+  UserRepository userRepository;
+
   @Test
+  public void 회원가입() throws ParseException {
+    userRepository.save(new User("admin", bCryptPasswordEncoder.encode("1234"), "admin@admin.com", "ROLE_ADMIN", null, null));
+    userRepository.save(new User("manager", bCryptPasswordEncoder.encode("1234"), "manager@manager.com", "ROLE_MANAGER", null, null));
+  };
+
+//  @Test
   public void 게시물100개등록() {
     String sql="insert into bbs_footfix (bbs_title,bbs_writer,bbs_cont,bbs_filename,bbs_filepath) values(?,?,?,?,?)";
 
@@ -70,7 +78,7 @@ public class MemberTests {
     }
   }//testInsertBoard()
 
-  @Test
+//  @Test
   public void testInsertMember() {
 
     String sql="insert into ff_member (userid,password,username) values(?,?,?)";
@@ -82,7 +90,7 @@ public class MemberTests {
       try{
         con=dataSource.getConnection(); //커넥션풀 ds로 con생성
         pstmt=con.prepareStatement(sql);
-        pstmt.setString(2,pwencoder.encode("pw"+i)); //비번을 암호화하여 문자열로 저장
+        pstmt.setString(2,bCryptPasswordEncoder.encode("pw"+i)); //비번을 암호화하여 문자열로 저장
 
         if(i<10){
           pstmt.setString(1,"user"+i);
@@ -107,7 +115,7 @@ public class MemberTests {
     }
   }//testInsertMember()
 
-  @Test
+//  @Test
   public void testInsertAuth() {
     String sql="insert into ff_member_auth (userid,auth) values(?,?)";
 

@@ -3,11 +3,17 @@
 <mapper namespace="com.footfix.dao.CommentDAO"> <!-- 매퍼 인터페이스의 이름과 동일하게 지정 -->
 
   <insert id="comm_in">
-    <selectKey resultType="int" keyProperty="cno" order="BEFORE"> /* 시퀀스를 지원하지않는 DB에선 이렇게 해야함 */
-      SELECT NEXT VALUE FOR cnoRef_seq
+    <selectKey keyProperty="cno" resultType="long" order="BEFORE">
+      SELECT next_commentval('nextval')
     </selectKey>
-    INSERT INTO ff_comment (bno,cno,commenter,commentText,comm_ref)
-    VALUES (#{bno},#{cno},#{commenter},#{commentText},#{cno})
+    INSERT INTO ff_comment ( bno,cno,commenter,commentText,comm_ref )
+    VALUES (
+            #{bno},
+            #{cno},
+            #{commenter},
+            #{commentText},
+            #{cno}
+            )
   </insert>
 
   <select id="comm_list" resultType="com.footfix.dto.CommentDTO">
@@ -16,6 +22,7 @@
 
   <delete id="comm_del">
     DELETE FROM ff_comment WHERE cno = #{cno}
+
   </delete>
 
   <update id="comm_edit" parameterType="com.footfix.dto.CommentDTO">
@@ -30,13 +37,19 @@
   </update>
 
   <insert id="reply_in" parameterType="com.footfix.dto.CommentDTO">
-    <selectKey resultType="int" keyProperty="cno" order="BEFORE">
-      SELECT NEXT VALUE FOR cnoRef_seq
+    <selectKey keyProperty="cno" resultType="long" order="BEFORE">
+      SELECT next_commentval('nextval')
     </selectKey>
-    INSERT INTO ff_comment (bno,cno,commenter,commentText,comm_ref,comm_step,comm_depth)
-    VALUES (#{bno},#{cno},#{commenter},#{commentText},#{comm_ref},
-            (SELECT MAX(comm_step) FROM ff_comment WHERE comm_ref = #{comm_ref}) + 1,
-            #{comm_depth}+1)
+    INSERT INTO ff_comment ( bno,cno,commenter,commentText,comm_ref,comm_step,comm_depth )
+    VALUES (
+            #{bno},
+            #{cno},
+            #{commenter},
+            #{commentText},
+            #{comm_ref},
+            (SELECT MAX(comm_step) FROM ff_comment AS FFC WHERE comm_ref = #{comm_ref}) + 1,
+            #{comm_depth}+1
+            )
   </insert>
 
 </mapper>

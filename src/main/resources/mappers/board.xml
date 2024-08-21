@@ -3,36 +3,43 @@
 <mapper namespace="com.footfix.dao.BoardDAO"> <!-- 매퍼 인터페이스의 이름과 동일하게 지정 -->
 
   <insert id="bbs_in" parameterType="com.footfix.dto.BoardDTO">
-    <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">
-      SELECT NEXT VALUE FOR bbs_noRef_seq
+    <selectKey resultType="long" keyProperty="bbs_no" order="BEFORE">
+      SELECT nextval('nextval')
     </selectKey>
-    INSERT INTO bbs_footfix (bbs_no,bbs_title,bbs_writer,bbs_cont,bbs_fileName,bbs_filePath,bbs_ref)
-    VALUES (#{bbs_no},#{bbs_title},#{bbs_writer},#{bbs_cont},#{bbs_fileName},#{bbs_filePath},#{bbs_no})
+    INSERT INTO bbs_footfix ( bbs_no,bbs_title,bbs_writer,bbs_cont,bbs_fileName,bbs_filePath,bbs_ref )
+    VALUES (#{bbs_no},
+            #{bbs_title},
+            #{bbs_writer},
+            #{bbs_cont},
+            #{bbs_fileName},
+            #{bbs_filePath},
+            #{bbs_no}
+           )
   </insert>
 
   <select id="bbs_list" resultType="com.footfix.dto.BoardDTO">
     SELECT * FROM (
-      SELECT ROWNUM rNum,bbs_no,bbs_writer,bbs_title,bbs_hit,bbs_ref,bbs_step,bbs_depth,bbs_regdate
-      FROM (SELECT * FROM bbs_footfix
+      SELECT ROW_NUMBER() over (ORDER BY bbs_ref DESC , bbs_step ASC ) AS rNum,
+             bbs_no,bbs_writer,bbs_title,bbs_hit,bbs_ref,bbs_step,bbs_depth,bbs_regdate
+      FROM bbs_footfix
 
-      <where>
-        <if test="find_field == ''"></if>
-        <if test="find_field == 'title'">
-          bbs_title like #{find_name}
-        </if>
-        <if test="find_field == 'cont'">
-          bbs_cont like #{find_name}
-        </if>
-        <if test="find_field == 'writer'">
-          bbs_writer like #{find_name}
-        </if>
-        <if test="find_field == 'title+cont'">
-          bbs_cont like #{find_name} or bbs_title like #{find_name}
-        </if>
-      </where>
-
-      ORDER BY bbs_ref DESC , bbs_step ASC)
-    ) WHERE rNum &gt;= #{startRow} and rNum &lt;= #{endRow}
+        <where>
+          <if test="find_field == ''"></if>
+          <if test="find_field == 'title'">
+            bbs_title like #{find_name}
+          </if>
+          <if test="find_field == 'cont'">
+            bbs_cont like #{find_name}
+          </if>
+          <if test="find_field == 'writer'">
+            bbs_writer like #{find_name}
+          </if>
+          <if test="find_field == 'title+cont'">
+            bbs_cont like #{find_name} or bbs_title like #{find_name}
+          </if>
+        </where>
+    ) AS inner_query
+    WHERE rNum &gt;= #{startRow} and rNum &lt;= #{endRow}
 
   </select>
 
@@ -95,15 +102,21 @@
 
   <!-- 답변저장-->
   <insert id="in_reply" parameterType="com.footfix.dto.BoardDTO">
-      <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">
-        SELECT NEXT VALUE FOR bbs_noRef_seq
-      </selectKey>
-      INSERT INTO bbs_footfix (bbs_no,bbs_writer, bbs_title, bbs_cont, bbs_fileName, bbs_filePath ,bbs_ref, bbs_step, bbs_depth)
-      VALUES (#{bbs_no}, #{bbs_writer}, #{bbs_title}, #{bbs_cont},
-              #{bbs_fileName}, #{bbs_filePath},
-              #{bbs_ref},
-              (SELECT max(bbs_step) FROM bbs_footfix AS BB4 WHERE bbs_ref = #{bbs_ref}) + 1,
-              #{bbs_depth} + 1)
+    <selectKey keyProperty="bbs_no" resultType="long" order="BEFORE">
+      SELECT nextval('nextval')
+    </selectKey>
+    INSERT INTO bbs_footfix (bbs_no,bbs_writer,bbs_title,bbs_cont,bbs_fileName,bbs_filePath,bbs_ref,bbs_step,bbs_depth)
+    VALUES (
+            #{bbs_no},
+            #{bbs_writer},
+            #{bbs_title},
+            #{bbs_cont},
+            #{bbs_fileName},
+            #{bbs_filePath},
+            #{bbs_ref},
+            (SELECT max(bbs_step) FROM bbs_footfix AS BB4 WHERE bbs_ref = #{bbs_ref}) + 1,
+            #{bbs_depth} + 1
+           )
     </insert>
     <!--    <selectKey keyProperty="bbs_no" resultType="int" order="BEFORE">-->
   <!--      SELECT NEXT VALUE FOR bbs_noRef_seq-->
