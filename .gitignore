@@ -18,6 +18,9 @@ target/
 *.iws
 *.iml
 *.ipr
+application.yml
+application-dev.yml
+application-prod.yml
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,3 +34,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Firebase ###
+footfix-f417c-firebase-adminsdk-7fwsl-8e0ba158e8.json
+firebase-messaging-sw.js
