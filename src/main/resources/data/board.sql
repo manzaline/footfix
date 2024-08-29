@@ -38,12 +38,12 @@ BEGIN
   RETURN ret;
 end;
 
-call create_sequence('nextval'); -- 실행하면 currval 이 0이 되므로 시퀀스를 0부터 다시시작할때도 쓰인다.
+call create_sequence('nextval'); -- 반드시 한번은 실행. 다시 실행하면 currval 이 0이 되므로 시퀀스를 0부터 다시시작할때도 쓰인다.
 select nextval('nextval');
 
 show tables;
 DROP TABLE sequences;
-DROP PROCEDURE ;
+DROP PROCEDURE;
 
 
 

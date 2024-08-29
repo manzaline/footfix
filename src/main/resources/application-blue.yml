@@ -1,10 +1,14 @@
 server:
+  port: 8080
+  serverAddress: 15.165.215.22 # AWs EC2 탄력적IP주소
   servlet:
     session:
       persistent: false # 기본값은 false지만 spring-boot-devtools 라이브러리가 true로 설정(재시작/핫 리로드기능때문?)하기때문에 명시해주는것이 좋다
       timeout: 70s # 60초 CustomLoginSuccessHandler.java 에 개별세션에대한 타임아웃설정이 우선
 #      cookie:
 #        max-age: 1s # 기본단위 초
+
+serverName: blue_server
 
 spring:
   thymeleaf:
@@ -18,10 +22,10 @@ spring:
     username: root
     password: 1234
   #    AWD RDS 연결(url변경)
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://rds-mysql.cpag6cmwknpz.us-east-1.rds.amazonaws.com:3306/rds_mysql # ;NON_KEYWORDS=USER 예약어 user 강제해제
-#    username: admin
-#    password: qwerasdf
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://rds-mysql.cpag6cmwknpz.us-east-1.rds.amazonaws.com:3306/rds_mysql # ;NON_KEYWORDS=USER 예약어 user 강제해제
+  #    username: admin
+  #    password: qwerasdf
 
   h2:
     console:
@@ -34,9 +38,9 @@ spring:
         hbm2ddl:
           auto: update
           show-sql: true
-#    hibernate:
-#      ddl-auto: create
-#      show-sql: true
+  #    hibernate:
+  #      ddl-auto: create
+  #      show-sql: true
 
   security:
     oauth2:
@@ -47,8 +51,7 @@ spring:
           naver: # /oauth2/authorization/naver 이 주소를 동작하게 한다.
             client-id: lpGKOqlteC6kzWSrKNRE
             client-secret: ssibXfykyI
-            redirect-uri: http://localhost:8080/login/oauth2/code/naver #필수, 네이버 설정과 똑같아야한다
-#            redirect-uri: http://localhost:8080/index
+            redirect-uri: http://15.165.215.22/login/oauth2/code/naver #필수, 네이버 설정과 똑같아야한다
             authorization-grant-type: authorization_code
             scope:
               - name # 작대기 다음에 띄어쓰기 필수
@@ -65,8 +68,8 @@ spring:
             scope: # https://developers.kakao.com/docs/latest/ko/kakaologin/common#user-info
               - profile_nickname
               - profile_image
-#              - account_email
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            #              - account_email
+            redirect-uri: http://15.165.215.22/login/oauth2/code/kakao
             client-name: Kakao
 
           #Google
@@ -74,7 +77,7 @@ spring:
             client-id: 362737595673-t6gr8o5ehldlnmfk3bcu0ce6bc9p32a7.apps.googleusercontent.com
             client-secret: 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
             #구글 자체에서 설정되어있기때문에 설정안해도 됨
-#            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            #            redirect-uri: http://localhost:8080/login/oauth2/code/google
             scope:
               - email
               - profile
@@ -96,9 +99,6 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-info-authentication-method: header
             user-name-attribute: id # Kakao 응답 값 id, connected_at, properties, kakao_account 중 id 지정
-  mvc:
-    view:
-      prefix:
 
 mybatis:
   mapper-locations: classpath:mappers/*.xml

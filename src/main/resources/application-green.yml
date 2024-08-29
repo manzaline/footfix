@@ -1,10 +1,14 @@
 server:
+  port: 8081
+  serverAddress: 15.165.215.22
   servlet:
     session:
       persistent: false # 기본값은 false지만 spring-boot-devtools 라이브러리가 true로 설정(재시작/핫 리로드기능때문?)하기때문에 명시해주는것이 좋다
       timeout: 70s # 60초 CustomLoginSuccessHandler.java 에 개별세션에대한 타임아웃설정이 우선
 #      cookie:
 #        max-age: 1s # 기본단위 초
+
+serverName: green_server
 
 spring:
   thymeleaf:
@@ -41,8 +45,7 @@ spring:
           naver: # /oauth2/authorization/naver 이 주소를 동작하게 한다.
             client-id: lpGKOqlteC6kzWSrKNRE
             client-secret: ssibXfykyI
-            redirect-uri: http://localhost:8080/login/oauth2/code/naver #필수, 네이버 설정과 똑같아야한다
-            #            redirect-uri: http://localhost:8080/index
+            redirect-uri: http://15.165.215.22/login/oauth2/code/naver #필수, 네이버 설정과 똑같아야한다
             authorization-grant-type: authorization_code
             scope:
               - name # 작대기 다음에 띄어쓰기 필수
@@ -60,7 +63,7 @@ spring:
               - profile_nickname
               - profile_image
             #              - account_email
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: http://15.165.215.22/login/oauth2/code/kakao
             client-name: Kakao
 
           #Google

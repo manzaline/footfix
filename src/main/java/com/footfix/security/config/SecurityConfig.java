@@ -80,13 +80,14 @@ public class SecurityConfig {
 //            .csrf(csrf -> csrf.disable()) // CSRF 비활성화 .csrf(AbstractHttpConfigurer::disable)
 //            .httpBasic(Customizer.withDefaults()) // HTTP기본인증, 헤더에 이름과 비밀번호를 인코딩하여 전송. REST API활용할때 씀.
             .authorizeHttpRequests(auth -> auth // 인가 설정
-                            .requestMatchers("/img/**","/vendor/**","/fonts/**","/data/**","/assets/**","/images/**","/css/**","/js/**").permitAll()
-                            .requestMatchers("/test/**","/home","/message","/mytest","/join", "/sample/all", "/welcome").permitAll()
-                            //  !!!스프링시큐리티가 자동으로 접두사에 "ROLE_"을 추가해준다!!!
-                            .requestMatchers("/sample/member","/index").hasAnyRole("MEMBER","MANAGER","ADMIN")
-                            .requestMatchers("/sample/manager","/bbs/**","/comment").hasAnyRole("MANAGER","ADMIN","MEMBER")
-                            .requestMatchers("/sample/admin","/footfix/**").hasRole("ADMIN")
-                            .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                    .requestMatchers("/img/**","/vendor/**","/fonts/**","/data/**","/assets/**","/images/**","/css/**","/js/**").permitAll()
+                    .requestMatchers("/test/**","/home","/message","/mytest","/join", "/sample/all", "/welcome").permitAll()
+                    .requestMatchers("/hc", "/env").permitAll()
+                    //  !!!스프링시큐리티가 자동으로 접두사에 "ROLE_"을 추가해준다!!!
+                    .requestMatchers("/sample/member","/index").hasAnyRole("MEMBER","MANAGER","ADMIN")
+                    .requestMatchers("/sample/manager","/bbs/**","/comment").hasAnyRole("MANAGER","ADMIN","MEMBER")
+                    .requestMatchers("/sample/admin","/footfix/**").hasRole("ADMIN")
+                    .anyRequest().authenticated() // 나머지 요청은 인증 필요
 //                      .anyRequest().permitAll()
             )
             .formLogin(login -> login
@@ -115,11 +116,11 @@ public class SecurityConfig {
              */
             .rememberMe(remember -> remember // 자동 로그인 설정
 //                    .key("footfix") // 기본값 : "springSecured"
-                            .rememberMeParameter("remember-me")
+                    .rememberMeParameter("remember-me")
 //                    .rememberMeCookieName("footfix-remember-me")
 //                    .tokenValiditySeconds(10)
-                            .userDetailsService(userDetailsService)
-                            .rememberMeServices(rememberMeServices) // 세션저장(MyBatisTokenRepository.java)
+                    .userDetailsService(userDetailsService)
+                    .rememberMeServices(rememberMeServices) // 세션저장(MyBatisTokenRepository.java)
             )
             /**
              * ====================================  < Session >  ==========================================================================
@@ -147,14 +148,14 @@ public class SecurityConfig {
                     .accessDeniedHandler(customAccessDeniedHandler()) // 접근 거부 핸들러
             )
             .logout(logout -> logout
-                            // POST(대문자 필수!)방식의 요청만 받도록 설정
-                            .logoutRequestMatcher(new AntPathRequestMatcher("/customLogout", "POST")) // 세부적인 커스터마이징이 가능한 로그아웃설정
+                    // POST(대문자 필수!)방식의 요청만 받도록 설정
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/customLogout", "POST")) // 세부적인 커스터마이징이 가능한 로그아웃설정
 //                            .logoutUrl("/customLogout") // 간단하게 로그아웃설정. csrf공격때문에 POST방식만 지원
 //                            .invalidateHttpSession(true) // 세션 무효화 기본값 true
-                            .deleteCookies("footfix-remember-me") // 쿠키 삭제
-                            .logoutSuccessHandler((req, resp, authentication) -> {
-                              resp.sendRedirect("/customLogin?logout=true"); // 클라이언트가아닌 서버에서 주고받는
-                            })
+                    .deleteCookies("footfix-remember-me") // 쿠키 삭제
+                    .logoutSuccessHandler((req, resp, authentication) -> {
+                      resp.sendRedirect("/customLogin?logout=true"); // 클라이언트가아닌 서버에서 주고받는
+                    })
             )
             .build();
   }
