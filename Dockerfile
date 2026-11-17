@@ -5,9 +5,10 @@ COPY . .
 
 RUN sed -i 's/\r$//' mvnw
 RUN chmod +x ./mvnw
-RUN ./mvnw clean package
+RUN ./mvnw clean package -DskipTests
 
 ENV JAR_PATH=/app/target
 RUN mv ${JAR_PATH}/*.jar /app/app.jar
 
 ENTRYPOINT [ "java", "-jar", "app.jar" ]
+

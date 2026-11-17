@@ -1,6 +1,6 @@
 server:
   port: 8080
-  serverAddress: 15.165.215.22 # AWs EC2 탄력적IP주소
+  serverAddress: 15.165.215.22 # AWs EC2 탄력적IP주소, 반드시 serverAddress 여야함
   servlet:
     session:
       persistent: false # 기본값은 false지만 spring-boot-devtools 라이브러리가 true로 설정(재시작/핫 리로드기능때문?)하기때문에 명시해주는것이 좋다
