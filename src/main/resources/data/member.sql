@@ -19,7 +19,7 @@ CREATE TABLE ff_member_auth(
 -- user01,ROLE_USER 이 있으면 user01,ROLE_USER는 불가능
 CREATE UNIQUE INDEX ix_auth_username ON ff_member_auth (userid,auth);
 
-INSERT INTO ff_member (userid, password, username) VALUES ('admin', '1234', );
+INSERT INTO ff_member (userid, password, username) VALUES ('admin', '1234', )
 insert into ff_member (userid, password, username) values ('manager89','pw89','미나미 아이자와');
 insert into ff_member_auth (userid, auth) values ('manager89','ROLE_MANAGER');
 
