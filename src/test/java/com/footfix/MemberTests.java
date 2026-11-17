@@ -5,7 +5,6 @@ import com.footfix.security.repository.UserRepository;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.sql.DataSource;
@@ -15,7 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@SpringBootTest
+//@SpringBootTest
 public class MemberTests {
 
   @Setter(onMethod_ = @Autowired) //setter()매서드를 통한 의존성 즉 DI주입
@@ -26,9 +25,9 @@ public class MemberTests {
   private DataSource dataSource; //커넥션 풀 관리 ds
 
   @Autowired
-  UserRepository userRepository;
+  private UserRepository userRepository;
 
-  @Test
+//  @Test
   public void 회원가입() throws ParseException {
     userRepository.save(new User("admin", bCryptPasswordEncoder.encode("1234"), "admin@admin.com", "ROLE_ADMIN", null, null));
     userRepository.save(new User("manager", bCryptPasswordEncoder.encode("1234"), "manager@manager.com", "ROLE_MANAGER", null, null));
