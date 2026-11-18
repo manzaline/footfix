@@ -11,6 +11,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
@@ -66,7 +67,10 @@ public class FootfixConfig {
   // API불러오는대 사용
   @Bean
   public RestTemplate restTemplate(){
-    return new RestTemplate();
+    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+    factory.setConnectTimeout(3000);
+    factory.setReadTimeout(8000);
+    return new RestTemplate(factory);
   }
 
   @Bean

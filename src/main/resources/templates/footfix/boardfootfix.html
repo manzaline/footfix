@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en"
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
@@ -45,7 +45,7 @@
               <!-- Small table -->
               <div class="col-md-12 my-4">
 <!--                <h2 class="h4 mb-1" th:utext="${userId}"></h2>-->
-                <input type="image" src="https://media.api-sports.io/football/leagues/39.png">
+                <img id="leagueEmblem" src="https://crests.football-data.org/PL.png" alt="프리미어리그" height="60">
                 <h2 class="h4 mb-1">프리미어리그</h2>
                 <p class="mb-3">프리미어리그 경기일정입니다. 원하시는 경기를 선택하고 알림등록을 하세요!</p>
                 <div class="card shadow">
@@ -69,11 +69,12 @@
                         </div>
                       </form>
                     </div>
-                    <!-- table -->
+                    <p role="alert" th:if="${scheduleError}">경기 일정을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+                    <p th:if="${scheduleError != true and #lists.isEmpty(matches)}">표시할 경기 일정이 없습니다.</p>
                     <table class="table table-borderless table-hover" id="footfix-table">
                       <thead>
                       <tr>
-                        <th>Date</th>
+                        <th>경기 일시 (한국시간)</th>
                         <th colspan="2" style="text-align: center">Home</th>
                         <th>Score</th>
                         <th colspan="2" style="text-align: center">Away</th>
@@ -82,29 +83,32 @@
                       </tr>
                       </thead>
                       <tbody id="bodyContainer">
-                        <tr th:each="fflItem, index : ${ffl}">
-                          <input type="hidden" th:value="${fflItem.fixture.id}" id="matchId" >
-                          <td th:utext="${fflItem.fixture.date}" id="date">Date</td>
-                          <td th:utext="${fflItem.teams.home.name}" id="homeName" style="text-align: center">Home</td>
-                          <td style="text-align: right">
-                            <img th:src="@{${fflItem.teams.home.logo}}" width="25px" height="25px" alt="Home Logo">
+                        <tr th:each="match : ${matches}"
+                            th:attr="data-match-id=|fd-${match.id}|,data-reminder-date=${match.reminderDate}">
+                          <td th:text="${match.kickoff}"></td>
+                          <td class="home-name text-center" th:text="${match.homeTeam?.displayName}"></td>
+                          <td class="text-right">
+                            <img th:if="${not #strings.isEmpty(match.homeTeam?.crest)}" th:src="${match.homeTeam.crest}"
+                                 width="25" height="25" loading="lazy" alt="홈팀 로고">
                           </td>
-                          <td th:utext="${fflItem.goals.home} + ' - ' + ${fflItem.goals.away}" style="text-align: center">Score</td>
-                          <td style="text-align: left">
-                            <img th:src="@{${fflItem.teams.away.logo}}" width="25px" height="25px" alt="Away Logo">
+                          <td class="match-result text-center" th:text="${match.result}"></td>
+                          <td class="text-left">
+                            <img th:if="${not #strings.isEmpty(match.awayTeam?.crest)}" th:src="${match.awayTeam.crest}"
+                                 width="25" height="25" loading="lazy" alt="원정팀 로고">
                           </td>
-                          <td th:utext="${fflItem.teams.away.name}" id="awayName" style="text-align: center">Away</td>
-                          <td th:utext="${fflItem.fixture.status.matchStatus}">Match Status</td>
+                          <td class="away-name text-center" th:text="${match.awayTeam?.displayName}"></td>
+                          <td th:text="${match.statusLabel}"></td>
                           <td>
-                            <div class="custom-control custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" th:id="${index.count}">
-                              <label class="custom-control-label" th:for="${index.count}"></label>
+                            <div class="custom-control custom-checkbox" th:if="${match.upcoming}">
+                              <input type="checkbox" class="custom-control-input" th:id="|reminder-${match.id}|">
+                              <label class="custom-control-label" th:for="|reminder-${match.id}|" aria-label="경기 알림 선택"></label>
                             </div>
                           </td>
                         </tr>
                       </tbody>
                     </table>
                     <div style="text-align: center" id="pagination"></div>
+                    <small>Data provided by <a href="https://www.football-data.org/">football-data.org</a></small>
                     <input type="hidden" th:value="${nickName}" id="nickName">
                     <input type="hidden" th:value="${userId}" id="userId">
                     <button type="button" id="saveDatas" class="btn mb-2 btn-primary btn-lg btn-block">알람등록</button>
@@ -133,21 +137,17 @@
   <script>
     const csrfToken = document.querySelector('#csrfToken').content;
     const csrfHeader = document.querySelector('#csrfHeader').content;
-    let rows = Array.from(document.querySelectorAll("tbody > tr"));
+    const bodyContainer = document.querySelector("#bodyContainer");
+    const rows = Array.from(bodyContainer.rows);
     const userId = document.querySelector("#userId").value;
 
-    // 검색
-    function ready() {
-      let search = document.getElementById("search");
-      function keyup() {
-        let k = search.value.toLowerCase();
-        let targetRows = document.querySelectorAll("tbody > tr > td:nth-child(8n+2), td:nth-child(8n+6)");
-        let searchResult = Array.from(targetRows).filter(row => row.textContent.toLowerCase().includes(k)).map(row => row.parentNode);
-        rows.forEach(row => row.style.display = "none");
-        searchResult.forEach(row => row.style.display = "");
-        createPagination(searchResult, "pagination");
-      };
-      search.addEventListener("keyup", keyup);
+    function updateFilter() {
+      const query = document.getElementById("search").value.toLowerCase().trim();
+      const matches = rows.filter(row =>
+        row.querySelector(".home-name").textContent.toLowerCase().includes(query) ||
+        row.querySelector(".away-name").textContent.toLowerCase().includes(query));
+      rows.forEach(row => row.style.display = "none");
+      createPagination(matches, "pagination");
     }
 
     // 페이징
@@ -178,104 +178,56 @@
         pagination.appendChild(page);
       };
       // 첫 번째 페이지 번호를 클릭한다.
-      pagination.firstChild.click();
+      pagination.firstElementChild?.click();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      ready();
-      createPagination(rows, "pagination");
-    });
+    document.getElementById("search").addEventListener("input", updateFilter);
+    document.getElementById("inlineFormCustomSelectPref1").addEventListener("change", updateFilter);
+    updateFilter();
 
-    // select 요소에 change 이벤트 리스너를 추가
-    let select = document.querySelector("#inlineFormCustomSelectPref1");
-    select.addEventListener("change", function() {
-      // 현재 검색 결과를 가져온다
-      let k = document.getElementById("search").value.toLowerCase();
-      let targetRows = document.querySelectorAll("tbody > tr > td:nth-child(8n+2), td:nth-child(8n+6)");
-      let searchResult = Array.from(targetRows).filter(row => row.textContent.toLowerCase().includes(k)).map(row => row.parentNode);
-      // 페이징 함수를 호출한다
-      createPagination(searchResult, "pagination");
-    });
-
-    // dates에 체크한 경기의 정보담기
-    let bodyContainer = document.querySelector("#bodyContainer");
-    let datas = [];
-
-    bodyContainer.addEventListener("change",(e) => {
-      let data = '';
-      data += userId;
-      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#matchId").value;
-      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#date").textContent;
-      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#homeName").textContent;
-      data += ',' + e.target.parentElement.parentElement.parentElement.querySelector("#awayName").textContent;
-
-      if(e.target.checked && !datas.includes(data)){
-        datas.push(data);
-        console.log(datas);
-      }else if(!e.target.checked && datas.includes(data)){
-        datas = datas.filter(item => item !== data);
-        console.log(datas);
-      }
-    });
-  </script>
-
-  <script type=module>
-
-    const saveDatas = document.querySelector("#saveDatas");
-    let tokenList = [];
-
-    // DB에서 userId를 이용해 토큰 가져오기
-    fetch(`/notification/getToken/${userId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [csrfHeader]: csrfToken,
-      }
-    })
-      .then(resp => resp.json())
-      .then(data => {
-        tokenList = data;
-        console.log(data);
-      })
-    .catch(err => console.error('에러!: '+err))
-
-    // 체크한 경기 DB에 저장
-    saveDatas.addEventListener("click",() => {
-      const nickName = document.querySelector("#nickName").value;
-      fetch(`/footfix/saveDate/${userId}`,{
+    // 경기 데이터는 이미 페이지에 있다. 푸시 토큰은 알림 등록을 눌렀을 때만 조회한다.
+    const saveButton = document.getElementById("saveDatas");
+    async function post(url, body) {
+      const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-HTTP-Method-Override": "PATCH",
-          [csrfHeader]: csrfToken,
-        },
-        body: JSON.stringify({
-          nickName: nickName,
-          datas: datas,
-        }),
-      })
-        .then(resp => resp.text()) // 서버에서 받아온 문자열을 텍스트로 변환. resp.text()는 비동기 함수이므로, 이 함수는 Promise를 반환
-        .then(data => alert(data)) // 변환된 텍스트를 알림
-      .catch(err => console.error('에러!: '+err))
+        headers: {"Content-Type": "application/json", [csrfHeader]: csrfToken},
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response;
+    }
 
-      // FCM푸시알림 등록
-      fetch(`/notification/schedule/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          [csrfHeader]: csrfToken,
-        },
-        body: JSON.stringify({
-          tokenList: tokenList,
-          datas: datas,
-          image: 'https://media.api-sports.io/football/leagues/39.png',
-        })
-      })
-      .then(rsp => rsp.text())
-      .then(data => alert(data))
-      .catch(err => console.error('에러!: '+err))
+    saveButton.addEventListener("click", async () => {
+      const selected = Array.from(bodyContainer.querySelectorAll("input:checked"));
+      if (selected.length === 0) {
+        alert("알림을 받을 경기를 선택해 주세요.");
+        return;
+      }
+      const datas = selected.map(input => {
+        const row = input.closest("tr");
+        return [userId, row.dataset.matchId, row.dataset.reminderDate,
+          row.querySelector(".home-name").textContent, row.querySelector(".away-name").textContent].join(",");
+      });
+      saveButton.disabled = true;
+      try {
+        const tokens = await post(`/notification/getToken/${userId}`);
+        const tokenList = await tokens.json();
+        if (tokenList.length > 0) {
+          // 스케줄러는 이미 DB에 저장된 경기 ID는 건너뛴다.
+          await post(`/notification/schedule/${userId}`, {
+            tokenList, datas, image: document.getElementById("leagueEmblem").src
+          });
+        }
+        const saved = await post(`/footfix/saveDate/${userId}`, {
+          nickName: document.querySelector("#nickName").value, datas
+        });
+        alert(await saved.text());
+      } catch (error) {
+        alert("경기 알림을 등록하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      } finally {
+        saveButton.disabled = false;
+      }
     });
-
   </script>
 
 </body>

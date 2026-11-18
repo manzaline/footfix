@@ -37,8 +37,7 @@ public class FCMNotificationServiceImpl {
         continue; // jobId가 포함되어 있으면 다음 데이터로 넘어간다. forEach는 반복문이 아닌 함수이기때문이다.
       }
 
-//      String timeString = splitData[2];
-      String timeString = "2024-08-19 15:27"; // 테스트를 위한 알림시간 강제설정
+      String timeString = splitData[2];
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
       LocalDateTime localDateTime = LocalDateTime.parse(timeString, formatter);
 
