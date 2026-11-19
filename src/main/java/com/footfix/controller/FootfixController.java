@@ -1,27 +1,26 @@
 package com.footfix.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.footfix.dao.FootfixDAO;
-import com.footfix.dto.FootfixDTO;
 import com.footfix.security.config.auth.PrincipalDetails;
-import com.footfix.security.repository.UserRepository;
+import com.footfix.service.FootballDataScheduleService;
 import com.footfix.service.FootfixService;
 import lombok.RequiredArgsConstructor;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequestMapping("/footfix")
 @RequiredArgsConstructor
@@ -29,19 +28,7 @@ public class FootfixController {
 
   private final FootfixService footfixService;
 
-  // RestTemplate 객체 생성, 자동빈생성지원 안함
-  private final RestTemplate restTemplate;
-
-  // ObjectMapper 객체 생성, 스프링부트 자동빈생성
-  private final ObjectMapper objectMapper;
-
-
-  @Value("${my.api-football.url}")
-  private String url;
-  @Value("${my.api-football.X-RapidAPI-Key}")
-  private String apiKey;
-  @Value("${my.api-football.X-RapidAPI-Host}")
-  private String apiHost;
+  private final FootballDataScheduleService scheduleService;
 
   // 사용자 별명 가져오기
   private String getNickName() {
@@ -73,39 +60,19 @@ public class FootfixController {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
     Long userId = principalDetails.getUser().getId();
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("X-RapidAPI-Key", apiKey);
-    headers.set("X-RapidAPI-Host", apiHost);
-
-    // HttpEntity 생성
-    HttpEntity<String> entity = new HttpEntity<String>(headers);
-
-    // HTTP요청을 보내서 API 호출하고 응답 받기
-    ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-    // 응답 코드를 변수에 저장
-    HttpStatusCode status = response.getStatusCode();
     try {
-      if (status == HttpStatus.OK) {
-
-        // JSON 데이터를 FootFixDTO 객체로 변환
-        FootfixDTO ffd = objectMapper.readValue(response.getBody(), FootfixDTO.class);
-
-        // FootFixDTO 객체에서 response 필드를 가져옴
-        List<FootfixDTO> ffl = ffd.getResponse();
-
-        // 모델에 리스트 추가
-        model.addAttribute("ffl", ffl);
-      } else {
-        System.out.println("Request failed: " + response.getStatusCode());
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+      model.addAttribute("matches", scheduleService.getSchedule().matches());
+    } catch (RestClientException e) {
+      Object reason = e instanceof RestClientResponseException response
+          ? response.getStatusCode() : e.getMessage();
+      log.warn("Could not load the Premier League schedule: {}", reason);
+      model.addAttribute("matches", List.of());
+      model.addAttribute("scheduleError", true);
     }
 
     model.addAttribute("nickName",nickName);
     model.addAttribute("userId",userId);
-    return "/footfix/boardfootfix";
+    return "footfix/boardfootfix";
   }
 
   @PostMapping("/saveDate/{userId}")
